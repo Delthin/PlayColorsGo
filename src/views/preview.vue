@@ -1,28 +1,42 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ref, onMounted, watch } from 'vue';
 import Navbar from "../components/Navbar.vue";
 import ColorPicker from "../components/ColorPicker.vue";
 
 const route = useRoute();
+const router = useRouter();
 const colors = ref<string[]>([]);
 
-onMounted(() => {
+function updateUrlColors(newColors: string[]) {
+  router.replace({ query: { colors: newColors.join(',') } });
+}
+
+function getColorsFromUrl(): string[] {
   const colorQuery = route.query.colors as string;
   if (colorQuery) {
-    colors.value = colorQuery.split(',');
-  } else {
-    // 如果没有传入颜色，设置默认颜色
-    colors.value = ['#FF0000', '#FFFF00', '#0000FF', '#00FF00', '#800080'];
+    return colorQuery.split(',');
   }
+  // Default colors if none are provided in the URL
+  return ['#FF0000', '#FFFF00', '#0000FF', '#00FF00', '#800080'];
+}
+
+onMounted(() => {
+  colors.value = getColorsFromUrl();
 });
 
+watch(
+    () => route.query.colors,
+    () => {
+      colors.value = getColorsFromUrl();
+    }
+);
 
 function handleColorChange(newColors: string[]) {
   colors.value = newColors;
+  updateUrlColors(newColors);
 }
 </script>
-
 
 <template>
   <Navbar />
@@ -36,7 +50,6 @@ function handleColorChange(newColors: string[]) {
       @change="handleColorChange"
   />
 </template>
-
 
 <style scoped>
 .palette-container {
