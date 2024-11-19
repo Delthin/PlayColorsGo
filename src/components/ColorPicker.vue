@@ -1,7 +1,6 @@
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import type { Ref } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 
 interface Props {
   modelValue: string[];
@@ -39,10 +38,15 @@ function updateColor(newColor: string, index: number) {
 
 // 点击颜色块时触发颜色选择器
 function openColorPicker(index: number) {
-  const colorPicker = document.querySelectorAll('.el-color-picker__trigger')[index];
-  if (colorPicker) {
-    (colorPicker as HTMLElement).click();
-  }
+  nextTick(() => {
+    const colorPicker = document.querySelectorAll('.el-color-picker__trigger')[index];
+    if (colorPicker) {
+      const dropdownElement = colorPicker.querySelector('.el-color-dropdown');
+      if (!dropdownElement) {
+        (colorPicker as HTMLElement).click();
+      }
+    }
+  });
 }
 
 // 增加颜色数量
@@ -107,7 +111,6 @@ function handleDrop(event: DragEvent) {
           @dragend="handleDragEnd($event)"
           @dragover="handleDragOver(index, $event)"
           @drop="handleDrop($event)"
-          @click="openColorPicker(index)"
           :class="{
           'dragging': index === draggedIndex,
           'drag-over': index === dragOverIndex
@@ -127,6 +130,7 @@ function handleDrop(event: DragEvent) {
               :show-alpha="true"
               :popper-class="'custom-color-picker'"
               size="small"
+              @click.stop="openColorPicker(index)"
           />
         </div>
       </div>
