@@ -1,6 +1,5 @@
-
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 interface Props {
   modelValue: string[];
@@ -13,7 +12,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxColors: 5
+  maxColors: 10
 });
 
 const emit = defineEmits<Emits>();
@@ -28,6 +27,22 @@ const displayedColors = computed(() => props.modelValue.slice(0, displayCount.va
 const draggedIndex = ref<number | null>(null);
 const dragOverIndex = ref<number | null>(null);
 
+// 生成类似颜色的函数
+function generateSimilarColor(baseColor: string): string {
+  const rgb = parseInt(baseColor.slice(1), 16);
+  const r = (rgb >> 16) & 255;
+  const g = (rgb >> 8) & 255;
+  const b = rgb & 255;
+
+  const variance = 200; // 颜色变化范围
+
+  const newR = Math.max(0, Math.min(255, r + Math.floor(Math.random() * variance * 2) - variance));
+  const newG = Math.max(0, Math.min(255, g + Math.floor(Math.random() * variance * 2) - variance));
+  const newB = Math.max(0, Math.min(255, b + Math.floor(Math.random() * variance * 2) - variance));
+
+  return `#${((newR << 16) | (newG << 8) | newB).toString(16).padStart(6, '0')}`;
+}
+
 // 处理颜色更新
 function updateColor(newColor: string, index: number) {
   const newColors = [...props.modelValue];
@@ -36,30 +51,26 @@ function updateColor(newColor: string, index: number) {
   emit('change', newColors);
 }
 
-// 点击颜色块时触发颜色选择器
-function openColorPicker(index: number) {
-  nextTick(() => {
-    const colorPicker = document.querySelectorAll('.el-color-picker__trigger')[index];
-    if (colorPicker) {
-      const dropdownElement = colorPicker.querySelector('.el-color-dropdown');
-      if (!dropdownElement) {
-        (colorPicker as HTMLElement).click();
-      }
-    }
-  });
-}
-
 // 增加颜色数量
 function increaseSize() {
   if (displayCount.value < props.maxColors) {
+    const newColors = [...props.modelValue];
+    const baseColor = newColors[newColors.length - 1];
+    const newColor = generateSimilarColor(baseColor);
+    newColors.push(newColor);
     displayCount.value++;
+    emit('update:modelValue', newColors);
+    emit('change', newColors);
   }
 }
 
 // 减少颜色数量
 function decreaseSize() {
   if (displayCount.value > 1) {
+    const newColors = props.modelValue.slice(0, -1);
     displayCount.value--;
+    emit('update:modelValue', newColors);
+    emit('change', newColors);
   }
 }
 
@@ -97,6 +108,11 @@ function handleDrop(event: DragEvent) {
   draggedIndex.value = null;
   dragOverIndex.value = null;
 }
+
+// 监听 props.modelValue 的变化
+watch(() => props.modelValue, (newValue) => {
+  displayCount.value = Math.min(newValue.length, props.maxColors);
+}, { deep: true });
 </script>
 
 <template>
@@ -130,15 +146,14 @@ function handleDrop(event: DragEvent) {
               :show-alpha="true"
               :popper-class="'custom-color-picker'"
               size="small"
-              @click.stop="openColorPicker(index)"
           />
         </div>
       </div>
     </div>
 
     <div class="color-adjustment">
-      <button @click="increaseSize">+</button>
-      <button @click="decreaseSize">-</button>
+      <button @click="increaseSize" :disabled="displayCount.value >= props.maxColors">+</button>
+      <button @click="decreaseSize" :disabled="displayCount.value <= 1">-</button>
     </div>
   </div>
 </template>
