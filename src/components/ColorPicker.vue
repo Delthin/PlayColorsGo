@@ -44,7 +44,6 @@ function updateColor(newColor: string, index: number) {
   // }
   // console.log(newColor);
   newColors[index] = new TinyColor(newColor).toHexString();
-  console.log(newColors[index]);
   emit('update:modelValue', newColors);
   emit('change', newColors);
 }
@@ -95,12 +94,9 @@ function adjustColors() {
     let adjustedColor = originalColor.clone();
 
     // 应用色调调整
-    console.log("hue:" + hue.value)
-    const hsl = adjustedColor.toHsl();
-    const h = (hsl.h + hue.value) % 360;
-    console.log("h:" + h);
+    let hsl = adjustedColor.toHsl();
+    let h = (Number(hsl.h) + Number(hue.value)) % 360;
     hsl.h = h < 0 ? 360 + h : h;
-    console.log("hsl.h:" + hsl.h);
     adjustedColor = new TinyColor(hsl);
     adjustedColor = saturation.value > 0
         ? adjustedColor.saturate(saturation.value)
