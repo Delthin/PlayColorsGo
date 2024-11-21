@@ -2,6 +2,8 @@
 import { ref, computed, watch } from 'vue';
 import { Shuffle, Palette, BookmarkPlus, RefreshCcw } from 'lucide-vue-next';
 
+import { TinyColor, random } from '@ctrl/tinycolor';
+
 interface Props {
   modelValue: string[];
   maxColors?: number;
@@ -26,7 +28,8 @@ const showAdjustmentPanel = ref(false);
 const hue = ref(0);
 const saturation = ref(0);
 const brightness = ref(0);
-const temperature = ref(0);
+// const temperature = ref(0);
+const originalColors = ref<TinyColor[]>([]);
 
 // 拖拽相关状态
 const draggedIndex = ref<number | null>(null);
@@ -40,8 +43,8 @@ function updateColor(newColor: string, index: number) {
   //   newColor = '#FF0000';
   // }
   // console.log(newColor);
-  newColors[index] = newColor;
-  // console.log(newColors[index]);
+  newColors[index] = new TinyColor(newColor).toHexString();
+  console.log(newColors[index]);
   emit('update:modelValue', newColors);
   emit('change', newColors);
 }
@@ -74,25 +77,58 @@ function shuffleColors() {
 
 function toggleAdjustmentPanel() {
   showAdjustmentPanel.value = !showAdjustmentPanel.value;
+  if (showAdjustmentPanel.value) {
+    // 打开面板时，保存原始颜色
+    originalColors.value = displayedColors.value.map(color => new TinyColor(color));
+  } else {
+    // 关闭面板时，重置调整值
+    resetAdjustment();
+  }
 }
 
+// function mapRange (value: number, fromMin: number, fromMax: number, toMin: number, toMax: number) {
+//   return ((value - fromMin) / (fromMax - fromMin)) * (toMax - toMin) + toMin;
+// }
+
 function adjustColors() {
-  const newColors = displayedColors.value.map(color => {
-    const hsl = rgbToHsl(hexToRgb(color));
-    hsl.h = (hsl.h + hue.value) % 360;
-    hsl.s = Math.max(0, Math.min(100, hsl.s + saturation.value));
-    hsl.l = Math.max(0, Math.min(100, hsl.l + brightness.value));
+  const newColors = originalColors.value.map(originalColor => {
+    let adjustedColor = originalColor.clone();
 
+    // 应用色调调整
+    console.log("hue:" + hue.value)
+    const hsl = adjustedColor.toHsl();
+    const h = (hsl.h + hue.value) % 360;
+    console.log("h:" + h);
+    hsl.h = h < 0 ? 360 + h : h;
+    console.log("hsl.h:" + hsl.h);
+    adjustedColor = new TinyColor(hsl);
+    adjustedColor = saturation.value > 0
+        ? adjustedColor.saturate(saturation.value)
+        : adjustedColor.desaturate(-saturation.value);
+    adjustedColor = brightness.value > 0
+        ? adjustedColor.lighten(brightness.value)
+        : adjustedColor.darken(-brightness.value);
     // 调整色温
-    const rgb = hslToRgb(hsl);
-    rgb.r = Math.max(0, Math.min(255, rgb.r + temperature.value));
-    rgb.b = Math.max(0, Math.min(255, rgb.b - temperature.value));
+    // 有点难，不搞了
+    // const rgb = adjustedColor.toRgb();
+    // const temperatureAdjustment = mapRange(temperature.value, -100, 100, -127.5, 127.5);
+    // rgb.r = Math.max(0, Math.min(255, rgb.r + temperatureAdjustment));
+    // rgb.b = Math.max(0, Math.min(255, rgb.b - temperatureAdjustment));
+    //
+    // adjustedColor = new TinyColor(rgb);
 
-    return rgbToHex(rgb);
+    return adjustedColor.toHexString();
   });
 
   emit('update:modelValue', newColors);
   emit('change', newColors);
+}
+
+function resetAdjustment() {
+  hue.value = 0;
+  saturation.value = 0;
+  brightness.value = 0;
+  // temperature.value = 0;
 }
 
 function loadFromFavorites() {
@@ -107,7 +143,7 @@ function generateNewPalette() {
 }
 
 function generateRandomColor(): string {
-  return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+  return random().toHexString();
 }
 
 function generateSimilarColor(baseColor: string): string {
@@ -159,79 +195,6 @@ function handleDrop(event: DragEvent) {
   draggedIndex.value = null;
   dragOverIndex.value = null;
 }
-
-// 颜色转换函数
-function hexToRgb(hex: string): { r: number, g: number, b: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 0, g: 0, b: 0 };
-}
-
-function rgbToHex(rgb: { r: number, g: number, b: number }): string {
-  return "#" + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
-}
-
-function rgbToHsl(rgb: { r: number, g: number, b: number }): { h: number, s: number, l: number } {
-  const r = rgb.r/ 255;
-  const g = rgb.g / 255;
-  const b = rgb.b / 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s, l = (max + min) / 2;
-
-
-  if (max === min) {
-    h = s = 0; // achromatic
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-
-
-  return { h: h * 360, s: s * 100, l: l * 100 };
-}
-
-
-function hslToRgb(hsl: { h: number, s: number, l: number }): { r: number, g: number, b: number } {
-  const h = hsl.h / 360;
-  const s = hsl.s / 100;
-  const l = hsl.l / 100;
-  let r, g, b;
-
-
-  if (s === 0) {
-    r = g = b = l; // achromatic
-  } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-      return p;
-    };
-
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1/3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1/3);
-
-  }
-
-
-  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-}
-
 
 // 监听 props.modelValue 的变化
 watch(() => props.modelValue, (newValue) => {
@@ -298,23 +261,87 @@ watch(() => props.modelValue, (newValue) => {
       </button>
     </div>
 
-    <div v-if="showAdjustmentPanel" class="adjustment-panel">
+    <div v-if="showAdjustmentPanel" class="adjustment-panel" >
       <div class="adjustment-slider">
         <label>Hue</label>
-        <input type="range" v-model="hue" min="-180" max="180" @input="adjustColors">
+        <div class="slider-container">
+          <input
+              type="range"
+              id="hue-slider"
+              v-model="hue"
+              min="-180"
+              max="180"
+              @input="adjustColors"
+          >
+          <input
+              type="number"
+              v-model="hue"
+              min="-180"
+              max="180"
+              @input="adjustColors"
+          >
+        </div>
       </div>
       <div class="adjustment-slider">
         <label>Saturation</label>
-        <input type="range" v-model="saturation" min="-100" max="100" @input="adjustColors">
+        <div class="slider-container">
+          <input
+              type="range"
+              id="saturation-slider"
+              v-model="saturation"
+              min="-100"
+              max="100"
+              @input="adjustColors"
+          >
+          <input
+              type="number"
+              v-model="saturation"
+              min="-100"
+              max="100"
+              @input="adjustColors"
+          >
+        </div>
       </div>
       <div class="adjustment-slider">
         <label>Brightness</label>
-        <input type="range" v-model="brightness" min="-100" max="100" @input="adjustColors">
+        <div class="slider-container">
+          <input
+              type="range"
+              id="brightness-slider"
+              v-model="brightness"
+              min="-100"
+              max="100"
+              @input="adjustColors"
+          >
+          <input
+              type="number"
+              v-model="brightness"
+              min="-100"
+              max="100"
+              @input="adjustColors"
+          >
+        </div>
       </div>
-      <div class="adjustment-slider">
-        <label>Temperature</label>
-        <input type="range" v-model="temperature" min="-100" max="100" @input="adjustColors">
-      </div>
+<!--      <div class="adjustment-slider">-->
+<!--        <label>Temperature</label>-->
+<!--        <div class="slider-container">-->
+<!--          <input-->
+<!--              type="range"-->
+<!--              id="temperature-slider"-->
+<!--              v-model="temperature"-->
+<!--              min="-100"-->
+<!--              max="100"-->
+<!--              @input="adjustColors"-->
+<!--          >-->
+<!--          <input-->
+<!--              type="number"-->
+<!--              v-model="temperature"-->
+<!--              min="-100"-->
+<!--              max="100"-->
+<!--              @input="adjustColors"-->
+<!--          >-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
 
   </div>
@@ -431,7 +458,7 @@ watch(() => props.modelValue, (newValue) => {
 .tools button {
   background-color: #ffffff;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 8px;
   cursor: pointer;
   color: #333;
@@ -448,7 +475,7 @@ watch(() => props.modelValue, (newValue) => {
   position: absolute;
   bottom: 100%;
   right: 80px;
-  width: 200px;
+  width: 250px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -457,15 +484,64 @@ watch(() => props.modelValue, (newValue) => {
 }
 
 .adjustment-slider {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .adjustment-slider label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
 }
 
-.adjustment-slider input {
-  width: 100%;
+.slider-container {
+  display: flex;
+  align-items: center;
 }
+
+.slider-container input[type="range"] {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.slider-container input[type="number"] {
+  width: 60px;
+}
+
+/* Custom styles for range inputs */
+input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 2px solid #4CAF50;
+}
+
+/* Custom background for each slider */
+#hue-slider {
+  background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);
+}
+
+#saturation-slider {
+  background: linear-gradient(to right, white, rgb(204, 0, 0));
+}
+
+#brightness-slider {
+  background: linear-gradient(to right, black, white);
+}
+
 </style>
+
+//#temperature-slider {
+//  background: linear-gradient(to right, #4000FF, white, #FF4000);
+//}
