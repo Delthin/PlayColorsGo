@@ -83,7 +83,9 @@ function openSignUpModal() {
       <div class="search-container" :class="{ 'with-tags': tags.length > 0 }">
         <!-- 当没有标签时的原始布局 -->
         <template v-if="tags.length === 0">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon">
+            <img src="../../public/search.png" alt="search" />
+          </span>
           <input
               type="text"
               v-model="inputTag"
@@ -149,6 +151,7 @@ function openSignUpModal() {
   </nav>
 </template>
 
+
 <style scoped>
 .navbar {
   position: fixed;
@@ -180,24 +183,25 @@ h1 {
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
+  background-color: #ffffff;
+  border-radius: 30px; /* 设置圆角矩形 */
+  padding: 5px 15px; /* 增加内边距 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 添加轻微的阴影 */
 }
 
-.search-icon {
-  position: absolute;
-  left: 10px;
-  font-size: 16px;
-  color: #888;
+.search-icon img {
+  width: 20px; /* 图标宽度 */
+  height: 20px; /* 图标高度 */
 }
 
 input {
-  padding: 10px 10px 10px 35px; /* Padding to leave space for the icon */
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  width: 300px;
-  background-color: #f0f0f0; /* Adjust background color */
+  padding: 10px 10px 10px 40px; /* 留出图标的空间 */
+  border: none; /* 去掉边框 */
+  border-radius: 30px; /* 圆角矩形 */
+  width: 300px; /* 搜索框宽度 */
+  background-color: transparent; /* 背景透明，与容器一致 */
   font-size: 14px;
   color: #333;
-  transition: all 0.3s ease;
 }
 
 input::placeholder {
@@ -206,7 +210,6 @@ input::placeholder {
 
 input:focus {
   outline: none;
-  border-color: #333;
   background-color: #ffffff;
 }
 
@@ -286,11 +289,11 @@ input:focus {
 }
 
 .nav-links .active {
-  color: red; /* Active link color */
+  color: red;
 }
 
 .nav-links span:hover {
-  color: #666; /* Hover color */
+  color: #666;
 }
 
 .auth-buttons {
