@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import {defineProps, onMounted, ref} from 'vue';
 import {router} from "../router";
+import {axios} from '../utils/request';
+import {userInfo} from "../api/user.ts";
 
 const props = defineProps<{
-  colors: string[]
+  paletteId: number,
+  colors: string[],
+  fromFavorites?: boolean;
 }>();
 
 // 控制工具提示的显示和位置
@@ -16,6 +20,25 @@ const tooltip = ref({
 
 // 控制菜单的显示状态
 const menuVisible = ref(false);
+const user = ref<{ name: string } | null>(null);
+
+async function fetchUserInfo() {
+  userInfo().then((res) => {
+    if (res.data.code === '000') {
+      console.log("fetchUserInfo!")
+      user.value = { name: res.data.result.name };
+      console.log(user.value.name);
+    }
+  })
+}
+
+onMounted(() => {
+  if(!(sessionStorage.getItem('token') == '')) {
+    fetchUserInfo();
+  } else{
+    user.value = null;
+  }
+});
 
 // 显示工具提示
 function showTooltip(color: string, event: MouseEvent) {
@@ -49,15 +72,40 @@ function copyPalette() {
 
 function openPalette() {
   const palette = props.colors.join(','); // Join colors into a single string for easy passing
+  console.log("on openPalette");
   router.push({ path: '/preview', query: { colors: palette } });
   menuVisible.value = false;
 }
 
 
 // 添加调色板到收藏
-function addToFavorites() {
-  alert("Palette added to favorites!");
-  menuVisible.value = false;
+async function addToFavorites() {
+  console.log("call addToFavorites");
+  console.log(user.value?.name);
+  if(user.value != null) {
+    console.log("h here!")
+    const name = user.value.name;
+    const paletteId = props.paletteId;
+    console.log(paletteId);
+    const url = `/api/users/addFavorite?name=${encodeURIComponent(name)}&paletteId=${encodeURIComponent(paletteId)}`;
+    console.log("about to call backend")
+    try {
+      // 发起POST请求，调用后端接口
+      const response = await axios.post(url, null);
+      console.log("in addToFavorites");
+      console.log(user.value.name);
+      if (response.data.code === "000") {
+        console.log("Palette added to favorites successfully!");
+        alert("Successfully add to favorites!");
+      } else {
+        console.error("Failed to add to favorites:", response.data.msg);
+      }
+    } catch (error) {
+      console.error("Error while adding to favorites:", error);
+    }
+  } else {
+    alert("Please log in first!");
+  }
 }
 </script>
 
@@ -86,7 +134,7 @@ function addToFavorites() {
         <ul>
           <li @click="copyPalette">Copy Palette</li>
           <li @click="openPalette">View Palette</li>
-          <li @click="addToFavorites">Add to Favorites</li>
+          <li v-if="!fromFavorites" @click="addToFavorites">Add to Favorites</li>
         </ul>
       </div>
     </div>

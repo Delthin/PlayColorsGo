@@ -15,6 +15,16 @@ const routes = [
         name: 'Preview',
         component: () => import('../views/preview.vue'),
     },
+    {
+        path: '/account',
+        name: 'Account',
+        component: () => import('../views/account.vue'),
+    },
+    {
+        path: '/favorites',
+        name: 'Favorites',
+        component: () => import('../views/favorites.vue'),
+    },
 ];
 
 const router = createRouter({

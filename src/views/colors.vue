@@ -1,15 +1,74 @@
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue'
 import ColorPalette from '../components/ColorPalette.vue'
+import { ref, watch } from "vue";
+import {axios} from '../utils/request';
+
+const palettes = ref<Array<{ id: number; colors: string[] }>>([]); // 所有配色方案
+const tags = ref<string[]>([]); // 从 Navbar 接收到的 tags
+
+async function fetchFilteredPalettes() {
+  try {
+    if (tags.value.length > 0) {
+      // 请求接口，传递 tags 作为参数
+      console.log(tags.value);
+      const tagsString = tags.value.map(tag => encodeURIComponent(tag)).join('&tags=');
+      const response = await axios.get(`/api/palettes/searchPalettes?tags=${tagsString}`);
+      if (response.data.code === '000') {
+        palettes.value = response.data.result.map((palette: any) => ({
+          id: palette.id,
+          colors: palette.colors,
+        }));
+      } else {
+        console.error("Failed to fetch filtered palettes:", response.data.msg);
+      }
+    } else {
+      // 如果没有标签，获取所有的调色板
+      const response = await axios.get("/api/palettes");
+      if (response.data.code === '000') {
+        palettes.value = response.data.result.map((palette: any) => ({
+          id: palette.id,
+          colors: palette.colors,
+        }));
+      } else {
+        console.error("Failed to fetch palettes:", response.data.msg);
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching filtered palettes:", error);
+  }
+}
+
+watch(tags, () => {
+  console.log("update palettes!");
+  fetchFilteredPalettes();
+}, { immediate: true, deep: true });
+
+// 监听 Navbar 的标签更新事件
+function updateTags(newTags: string[]) {
+  tags.value = newTags;
+  console.log("updateTags");
+  console.log(tags.value);
+}
+
 </script>
 
 <template>
-  <Navbar />
+  <Navbar @tags-update="updateTags"/>
   <div class="container">
     <h2>Popular Color Palettes</h2>
     <p>Get inspired by thousands of beautiful color schemes and make something cool!</p>
   </div>
-  <div class="palette-list">
+
+  <div v-if="palettes.length === 0" class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="#b0b0b0" viewBox="0 0 24 24">
+      <path d="M10,2a8,8,0,0,1,5.66,13.66l4.71,4.71a1,1,0,0,1-1.41,1.41l-4.71-4.71A8,8,0,1,1,10,2Zm0,2a6,6,0,1,0,6,6A6,6,0,0,0,10,4Z"></path>
+    </svg>
+    <h3>No palettes found</h3>
+    <p>It seems we can't find any results based on your search.</p>
+  </div>
+  <div v-else class="palette-list">
+    <!--
     <ColorPalette :colors="['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']" />
     <ColorPalette :colors="['#e63946', '#f1faee', '#a8dadc', '#457b9d', '#1d3557']" />
     <ColorPalette :colors="['#606c38', '#283618', '#fefae0', '#dda15e', '#bc6c25']" />
@@ -30,6 +89,13 @@ import ColorPalette from '../components/ColorPalette.vue'
     <ColorPalette :colors="['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#073b4c']" />
     <ColorPalette :colors="['#006d77', '#83c5be', '#edf6f9', '#ffddd2', '#e29578']" />
     <ColorPalette :colors="['#ff9f1c', '#ffbf69', '#ffffff', '#cbf3f0', '#2ec4b6']" />
+    -->
+    <ColorPalette
+        v-for="palette in palettes"
+        :key="palette.id"
+        :colors="palette.colors"
+        :paletteId="palette.id"
+    />
   </div>
 
 </template>
@@ -68,5 +134,22 @@ p {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 自适应宽度 */
   width: 100%;
   padding: 0 40px; /* Add padding to avoid sticking to edges */
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.empty-state h3 {
+  font-size: 24px;
+  margin-top: 20px;
+  color: #333;
+}
+
+.empty-state p {
+  color: #666;
+  margin-top: 10px;
+  font-size: 16px;
 }
 </style>
