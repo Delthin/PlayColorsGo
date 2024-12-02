@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/search.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ColorPicker.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auto-imports.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/auto-imports.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ColorPalette.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ColorPalette.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/LoginModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LoginModal.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Navbar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/preview.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/preview.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SignUpModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SignUpModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/colors.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/colors.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,15 +48,15 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Merging main",
-    "last_opened_file_path": "C:/Users/L/Desktop/code/bluewhale-frontend-ii",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/L/Desktop/code/HCI",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.lookFeel",
-    "ts.external.directory.path": "D:\\learnerqxm\\codes\\HCI_Fall2024\\hci\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "B:\\Desktop\\hci\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -162,6 +162,8 @@
       <workItem from="1731414953031" duration="12000" />
       <workItem from="1731468163413" duration="4000" />
       <workItem from="1731926271773" duration="769000" />
+      <workItem from="1732839695412" duration="56000" />
+      <workItem from="1733137994121" duration="3564000" />
     </task>
     <servers />
   </component>

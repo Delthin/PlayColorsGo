@@ -46,7 +46,6 @@ const showPassword = ref(false);
 const emit = defineEmits(["close", "switchToSignIn", "signupSuccess"]);
 
 function handleSignUp() {
-  // Handle sign-up logic
   register({
     name: username.value,
     password: password.value
@@ -102,7 +101,7 @@ function closeModal() {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 /* Modal content */

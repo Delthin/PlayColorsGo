@@ -129,7 +129,7 @@ async function addToFavorites() {
 
     <!-- 右下方的菜单按钮（三个点） -->
     <div class="menu-button-container">
-      <button class="menu-button" @click.stop="toggleMenu">···</button>
+      <button class="menu-button" @click.stop="toggleMenu">● ● ●</button>
       <div v-if="menuVisible" class="dropdown-menu">
         <ul>
           <li @click="copyPalette">Copy Palette</li>
@@ -151,7 +151,7 @@ async function addToFavorites() {
 .palette {
   display: flex;
   gap: 0;
-  margin: 20px 0;
+  margin: 15px 0;
   border-radius: 8px;
   width: 100%;
   overflow: hidden;
@@ -176,30 +176,27 @@ async function addToFavorites() {
   z-index: 10;
 }
 
-/* 右下方的菜单按钮 */
 .menu-button-container {
   position: relative;
-  margin-top: 1px; /* 控制菜单按钮与调色板的距离 */
 }
 
 .menu-button {
-  font-size: 18px;
+  font-size: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: #403f3f;
 }
 
-/* 下拉菜单样式 */
 .dropdown-menu {
   position: absolute;
-  top: 25px; /* 菜单显示在按钮下方 */
+  top: 25px;
   right: 0;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   overflow: hidden;
-  z-index: 100;
+  z-index: 10;
   width: 150px;
 }
 
@@ -214,6 +211,7 @@ async function addToFavorites() {
   font-size: 14px;
   cursor: pointer;
   color: #333;
+  font-family: 'Arial', sans-serif;
 }
 
 .dropdown-menu li:hover {

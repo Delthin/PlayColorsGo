@@ -4,13 +4,12 @@ import ColorPalette from '../components/ColorPalette.vue'
 import { ref, watch } from "vue";
 import {axios} from '../utils/request';
 
-const palettes = ref<Array<{ id: number; colors: string[] }>>([]); // 所有配色方案
-const tags = ref<string[]>([]); // 从 Navbar 接收到的 tags
+const palettes = ref<Array<{ id: number; colors: string[] }>>([]);
+const tags = ref<string[]>([]);
 
 async function fetchFilteredPalettes() {
   try {
     if (tags.value.length > 0) {
-      // 请求接口，传递 tags 作为参数
       console.log(tags.value);
       const tagsString = tags.value.map(tag => encodeURIComponent(tag)).join('&tags=');
       const response = await axios.get(`/api/palettes/searchPalettes?tags=${tagsString}`);
@@ -23,7 +22,6 @@ async function fetchFilteredPalettes() {
         console.error("Failed to fetch filtered palettes:", response.data.msg);
       }
     } else {
-      // 如果没有标签，获取所有的调色板
       const response = await axios.get("/api/palettes");
       if (response.data.code === '000') {
         palettes.value = response.data.result.map((palette: any) => ({
@@ -44,7 +42,6 @@ watch(tags, () => {
   fetchFilteredPalettes();
 }, { immediate: true, deep: true });
 
-// 监听 Navbar 的标签更新事件
 function updateTags(newTags: string[]) {
   tags.value = newTags;
   console.log("updateTags");
@@ -101,7 +98,6 @@ function updateTags(newTags: string[]) {
 </template>
 
 <style scoped>
-/* Global box-sizing to include padding and border in width calculations */
 *,
 *::before,
 *::after {
@@ -111,12 +107,12 @@ function updateTags(newTags: string[]) {
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-x: hidden;
 }
 
 .container {
   text-align: center;
-  margin-top: 150px; /* 为标题和导航栏间距 */
+  margin-top: 150px;
 }
 
 h2 {
@@ -131,9 +127,9 @@ p {
 .palette-list {
   display: grid;
   gap: 30px;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 自适应宽度 */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   width: 100%;
-  padding: 0 40px; /* Add padding to avoid sticking to edges */
+  padding: 0 40px;
 }
 
 .empty-state {

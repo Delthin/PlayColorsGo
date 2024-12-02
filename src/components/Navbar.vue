@@ -280,6 +280,7 @@ input:focus {
   display: flex;
   gap: 20px;
   font-size: 18px;
+  font-weight: bold;
 }
 
 .nav-links span {
@@ -304,7 +305,7 @@ input:focus {
 }
 
 .sign-in {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   color: #333;
@@ -321,7 +322,7 @@ input:focus {
   border: none;
   border-radius: 8px;
   padding: 8px 16px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;

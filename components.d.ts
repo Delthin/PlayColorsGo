@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ColorPalette: typeof import('./src/components/ColorPalette.vue')['default']
     ColorPicker: typeof import('./src/components/ColorPicker.vue')['default']
+    ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     LoginModal: typeof import('./src/components/LoginModal.vue')['default']
     Navbar: typeof import('./src/components/Navbar.vue')['default']
