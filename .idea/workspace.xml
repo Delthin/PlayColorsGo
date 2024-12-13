@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="">
+    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Navbar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/favorites.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/favorites.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,8 +167,17 @@
       <workItem from="1734053867071" duration="1075000" />
       <workItem from="1734054965311" duration="101000" />
       <workItem from="1734055073074" duration="101000" />
-      <workItem from="1734055180563" duration="2717000" />
+      <workItem from="1734055180563" duration="3845000" />
     </task>
+    <task id="LOCAL-00001" summary="modify: account.vue">
+      <option name="closed" value="true" />
+      <created>1734058808513</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1734058808513</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -184,5 +193,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="modify: account.vue" />
+    <MESSAGE value="modify: favourite.vue" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify: favourite.vue" />
   </component>
 </project>

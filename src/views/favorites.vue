@@ -4,6 +4,7 @@ import UserProfileDropDown from "../components/UserProfileDropDown.vue";
 import ColorPalette from '../components/ColorPalette.vue'
 import { userInfo } from "../api/user.ts";
 import {axios} from '../utils/request';
+import Navbar from "../components/Navbar.vue";
 
 // 示例 favorites 数据
 const favorites = ref<Array<{ id: number; colors: string[] }>>([]);
@@ -117,12 +118,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <Navbar />
   <div class="favorites-page">
-    <!-- 用户头像和下拉菜单 -->
-    <div class="user-dropdown-container">
-      <UserProfileDropDown />
-    </div>
-
     <!-- 页面内容 -->
     <div class="content">
       <h1>Favorites</h1>
@@ -182,19 +179,13 @@ onMounted(() => {
 
 <style scoped>
 .favorites-page {
-  padding: 20px;
   position: relative;
-}
-
-.user-dropdown-container {
-  position: absolute;
-  top: 30px;
-  right: 170px; /* 将头像定位到右上角 */
+  margin-top: 150px;
 }
 
 .content {
   max-width: 800px;
-  margin: 50px auto;
+  margin: auto;
   text-align: center;
 }
 
