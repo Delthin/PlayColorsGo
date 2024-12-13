@@ -86,40 +86,27 @@ function openSignUpModal() {
         <h1 class="title-left">Coolors</h1>
       </div>
 
-      <!-- 中间：搜索框 -->
       <div class="navbar-center">
-        <div class="search-container" :class="{ 'with-tags': tags.length > 0 }">
-          <template v-if="tags.length === 0">
-            <span class="search-icon">
-              <img src="../../public/search.png" alt="search" />
+        <div class="search-container">
+          <div class="tags" v-if="tags.length > 0">
+            <span v-for="tag in tags" :key="tag" class="tag">
+              {{ tag }}
+              <button @click="removeTag(tag)">×</button>
             </span>
-            <input
-                type="text"
-                v-model="inputTag"
-                @keydown="handleKeyPress"
-                placeholder="Search with colors, topics, styles, or hex values..."
-            />
-          </template>
-
-          <div v-else class="tags-input-container">
-            <div class="tags">
-              <span v-for="tag in tags" :key="tag" class="tag">
-                {{ tag }}
-                <button @click="removeTag(tag)">×</button>
-              </span>
-            </div>
-            <input
-                type="text"
-                v-model="inputTag"
-                @keydown="handleKeyPress"
-                placeholder="Add tag"
-                class="tag-input"
-            />
           </div>
+          <span class="search-icon" v-if="tags.length === 0">
+            <img src="../../public/search.png" alt="search" />
+          </span>
+          <input
+              type="text"
+              v-model="inputTag"
+              @keydown="handleKeyPress"
+              placeholder="Search or add tags"
+              class="search-input"
+          />
         </div>
       </div>
 
-      <!-- 右侧：导航链接和认证按钮 -->
       <div class="navbar-right">
         <div class="nav-links">
           <span
@@ -200,14 +187,14 @@ function openSignUpModal() {
 
 .search-container {
   transition: all 0.3s ease;
-  background-color: #f9f9f9;
-  border-radius: 30px;
+  background-color: #ffffff;
+  border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 5px 10px;
+  padding: 8px 8px;
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 400px; /* 限制搜索框最大宽度 */
+  max-width: 600px;
 }
 
 .search-icon img {
@@ -216,70 +203,44 @@ function openSignUpModal() {
   margin-right: 8px;
 }
 
-input {
-  border: none;
-  border-radius: 30px;
-  background-color: transparent;
-  font-size: 14px;
-  color: #333;
+.search-input {
   flex: 1;
-}
-
-input::placeholder {
-  color: #aaa;
-}
-
-input:focus {
+  border: none;
   outline: none;
-  background-color: #ffffff;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 8px;
 }
 
-.tags-input-container {
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  background-color: #f9f9f9;
-  overflow: auto;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+.search-input::placeholder {
+  color: #aaa;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
   margin-right: 8px;
+  gap: 4px; /* 增加标签之间的间距 */
 }
 
 .tag {
-  background: #eaeaea;
-  border-radius: 20px;
-  font-size: 14px;
-  padding: 2px 8px;
-  margin: 2px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin: 4px;
   display: flex;
   align-items: center;
+  font-size: 14px;
 }
 
 .tag button {
   background: none;
   border: none;
   cursor: pointer;
+  margin-left: 8px;
   color: #888;
   font-size: 12px;
-  margin-left: 4px;
-}
-
-.tag-input {
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.tag-input::placeholder {
-  color: #aaa;
+  padding: 0;
 }
 
 .navbar-right {

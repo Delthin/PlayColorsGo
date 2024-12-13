@@ -8,9 +8,10 @@ const props = defineProps<{
   paletteId: number,
   colors: string[],
   fromFavorites?: boolean;
+  isActive: boolean;
 }>();
 
-// 控制工具提示的显示和位置
+
 const tooltip = ref({
   visible: false,
   color: '',
@@ -19,7 +20,7 @@ const tooltip = ref({
 });
 
 // 控制菜单的显示状态
-const menuVisible = ref(false);
+const menuVisible = ref(props.isActive);
 const user = ref<{ name: string } | null>(null);
 
 async function fetchUserInfo() {
@@ -208,9 +209,9 @@ async function addToFavorites() {
 
 .dropdown-menu li {
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
-  color: #333;
+  color: #666;
   font-family: 'Arial', sans-serif;
 }
 
