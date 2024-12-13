@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import {login, userInfo, userInfoUpdate} from "../api/user.ts";
 import UserProfileDropDown from "../components/UserProfileDropDown.vue";
+import Navbar from "../components/Navbar.vue";
 
 const user = ref<{ name: string }>({ name: "" });
 const newPassword = ref("");
@@ -76,10 +77,8 @@ function updatePassword() {
 </script>
 
 <template>
+  <Navbar />
   <div class="account-page">
-    <div class="user-dropdown-container">
-      <UserProfileDropDown />
-    </div>
     <div class="content">
       <h1>Account</h1>
       <p class="main-description">Update your username and password.</p>
@@ -115,19 +114,13 @@ function updatePassword() {
 
 <style scoped>
 .account-page {
-  padding: 20px;
   position: relative;
-}
-
-.user-dropdown-container {
-  position: absolute;
-  top: 30px;
-  right: 170px; /* 将头像定位到右上角 */
+  margin-top: 150px;
 }
 
 .content {
-  max-width: 800px;
-  margin: 50px auto;
+  max-width: 700px;
+  margin: auto;
   text-align: center;
 }
 
@@ -158,7 +151,7 @@ h1 {
   border-radius: 8px;
   border: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 50px; /* 增加上下框之间的间距 */
+  margin-bottom: 50px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
