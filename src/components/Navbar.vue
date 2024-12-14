@@ -16,6 +16,24 @@ const tags = ref<string[]>([]);
 const inputTag = ref<string>('');
 const emit = defineEmits(["tags-update"]);
 const user = ref<{ name: string } | null>(null);
+const isSearchModalOpen = ref(false); // State to track modal visibility
+
+function adjustSearchModal() {
+  isSearchModalOpen.value = !isSearchModalOpen.value;
+}
+
+const colorsTags = ref<string[]>([
+  "Red", "Orange", "Brown", "Yellow", "Green", "Turquoise", "Blue", "Violet", "Pink", "Gray", "Black", "White",
+]);
+
+const stylesTags = ref<string[]>([
+  "Warm", "Cold", "Bright", "Dark", "Vintage", "Monochromatic", "Gradient", "Rainbow", "2 Colors", "3 Colors", "4 Colors",
+]);
+
+const topicsTags = ref<string[]>([
+  "Christmas", "Halloween", "Pride", "Sunset", "Spring", "Winter", "Summer", "Autumn", "Party", "Space", "Kids",
+]);
+
 
 async function fetchUserInfo() {
   try {
@@ -103,6 +121,9 @@ function openSignUpModal() {
               placeholder="Search or add tags"
               class="search-input"
           />
+          <span class="close-icon" @click="adjustSearchModal">
+            <img src="../../public/close.png" alt="close" />
+          </span>
         </div>
       </div>
 
@@ -134,6 +155,52 @@ function openSignUpModal() {
       </div>
     </div>
 
+    <div v-if="isSearchModalOpen" class="search-modal-overlay">
+      <div class="search-modal-content">
+        <div class="tag-section">
+          <div>
+            <h3>Colors</h3>
+            <div class="tags-container">
+              <div
+                  class="tag"
+                  v-for="tag in colorsTags"
+                  :key="tag"
+                  @click="addTag(tag)"
+              >
+                {{ tag }}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>Styles</h3>
+            <div class="tags-container">
+              <div
+                  class="tag"
+                  v-for="tag in stylesTags"
+                  :key="tag"
+                  @click="addTag(tag)"
+              >
+                {{ tag }}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3>Topics</h3>
+            <div class="tags-container">
+              <div
+                  class="tag"
+                  v-for="tag in topicsTags"
+                  :key="tag"
+                  @click="addTag(tag)"
+              >
+                {{ tag }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <LoginModal
         v-if="showLoginModal"
         @close="showLoginModal = false"
@@ -155,7 +222,7 @@ function openSignUpModal() {
   top: 0;
   width: 100%;
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 
@@ -196,6 +263,18 @@ function openSignUpModal() {
   align-items: center;
   width: 100%;
   max-width: 70%;
+}
+
+.close-icon {
+  cursor: pointer;
+  margin-left: 8px;
+  width: 20px;
+  height: 20px;
+}
+
+.close-icon img {
+  width: 100%;
+  height: 100%;
 }
 
 .search-icon img {
@@ -312,6 +391,53 @@ function openSignUpModal() {
   background-color: #0056b3;
 }
 
+.search-modal-overlay {
+  position: fixed;
+  top: 86px;
+  width: 100%;
+  background: #ffffff;
+  z-index: 9999;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-modal-content {
+  text-align: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
+.tag-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.tag-section > div {
+  flex: 1;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-items: center;
+  margin-top: 5px;
+}
+
+.tag {
+  background: none;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  text-align: center;
+}
+
+.tag:hover {
+  background: #e0e0e0;
+}
 </style>
 
 /* Responsive adjustments */

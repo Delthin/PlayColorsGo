@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue">
+      <change afterPath="$PROJECT_DIR$/public/close.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/LoginModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LoginModal.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Navbar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SignUpModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SignUpModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/colors.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/colors.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/preview.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/preview.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

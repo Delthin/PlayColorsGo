@@ -54,7 +54,7 @@ function handleColorChange(newColors: string[]) {
 <style scoped>
 .palette-container {
   text-align: center;
-  margin-top: 150px;
+  margin-top: 250px;
   margin-bottom: 70px;
 }
 

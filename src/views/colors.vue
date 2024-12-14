@@ -102,7 +102,7 @@ html, body {
 
 .container {
   text-align: center;
-  margin-top: 150px;
+  margin-top: 250px;
 }
 
 h2 {
