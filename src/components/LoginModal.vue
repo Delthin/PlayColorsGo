@@ -22,7 +22,7 @@
               class="toggle-password"
               @click="showPassword = !showPassword"
           >
-            👁️
+            <img src="../../public/eye.png"  style="width: 20px; height: 20px;"/>
           </span>
         </div>
         <button type="submit" class="submit-btn">Sign in</button>
@@ -101,7 +101,7 @@ function closeModal() {
   background: #fff;
   width: 90%;
   max-width: 300px;
-  min-height: 400px;
+  min-height: 350px;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -197,7 +197,7 @@ input:focus {
 }
 
 .footer-links {
-  font-size: 14px;
+  font-size: 16px;
   margin-top: 10px;
 }
 

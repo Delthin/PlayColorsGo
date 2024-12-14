@@ -81,7 +81,6 @@ function openSignUpModal() {
 <template>
   <nav class="navbar">
     <div class="navbar-content">
-      <!-- 左侧：标题 -->
       <div class="navbar-left">
         <h1 class="title-left">Coolors</h1>
       </div>
@@ -122,6 +121,7 @@ function openSignUpModal() {
             Preview
           </span>
         </div>
+        <div class="sep"> | </div>
         <div class="auth-buttons">
           <div v-if="user">
             <UserProfileDropDown />
@@ -134,7 +134,6 @@ function openSignUpModal() {
       </div>
     </div>
 
-    <!-- 模态框 -->
     <LoginModal
         v-if="showLoginModal"
         @close="showLoginModal = false"
@@ -157,13 +156,12 @@ function openSignUpModal() {
   width: 100%;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* 确保导航栏在最上层 */
+  z-index: 1000;
 }
 
 .navbar-content {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 10px 20px; /* 左右内边距 */
+  padding: 15px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,18 +169,21 @@ function openSignUpModal() {
 
 .navbar-left {
   flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .title-left {
   color: deepskyblue;
   font-size: 36px;
-  margin: 0; /* 移除默认外边距 */
+  margin: 0;
 }
 
 .navbar-center {
   flex: 2;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .search-container {
@@ -190,11 +191,11 @@ function openSignUpModal() {
   background-color: #ffffff;
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 8px 8px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 70%;
 }
 
 .search-icon img {
@@ -220,7 +221,7 @@ function openSignUpModal() {
   display: flex;
   flex-wrap: wrap;
   margin-right: 8px;
-  gap: 4px; /* 增加标签之间的间距 */
+  gap: 4px;
 }
 
 .tag {
@@ -248,12 +249,12 @@ function openSignUpModal() {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 20px;
 }
 
 .nav-links {
   display: flex;
   gap: 20px;
-  margin-right: 20px;
   font-size: 18px;
   font-weight: bold;
 }
@@ -272,10 +273,14 @@ function openSignUpModal() {
   color: #666;
 }
 
+.sep {
+  color: #666;
+}
+
 .auth-buttons {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  gap: 20px;
+  min-width: 100px;
 }
 
 .sign-in {
@@ -284,6 +289,7 @@ function openSignUpModal() {
   cursor: pointer;
   color: #333;
   transition: color 0.3s ease;
+  padding-right: 16px;
 }
 
 .sign-in:hover {
@@ -305,5 +311,33 @@ function openSignUpModal() {
 .sign-up:hover {
   background-color: #0056b3;
 }
+
 </style>
 
+/* Responsive adjustments */
+//@media (max-width: 768px) {
+//  .navbar-content {
+//    flex-direction: column;
+//    align-items: stretch;
+//  }
+//
+//  .navbar-left,
+//  .navbar-center,
+//  .navbar-right {
+//    flex: none;
+//    width: 100%;
+//    text-align: center;
+//    margin: 5px 0;
+//  }
+//
+//  .navbar-right {
+//    justify-content: center;
+//    flex-direction: row;
+//  }
+//
+//  .auth-buttons {
+//    display: flex; /* Maintain row layout */
+//    gap: 10px; /* Adjust spacing if needed */
+//    justify-content: center; /* Ensure the buttons stay centered */
+//  }
+//}
