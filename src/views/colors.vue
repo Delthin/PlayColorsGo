@@ -103,6 +103,7 @@ html, body {
 .container {
   text-align: center;
   margin-top: 250px;
+  margin-bottom: 80px;
 }
 
 h2 {
@@ -116,11 +117,11 @@ p {
 
 .palette-list {
   display: grid;
-  gap: 30px;
   //grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-template-columns: repeat(4, 1fr);
   width: 100%;
   padding: 0 40px;
+  gap: 35px;
 }
 
 .empty-state {

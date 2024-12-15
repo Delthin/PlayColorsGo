@@ -288,7 +288,6 @@ function openSignUpModal() {
   border: none;
   outline: none;
   font-size: 14px;
-  padding: 8px;
   border-radius: 8px;
 }
 
@@ -304,11 +303,11 @@ function openSignUpModal() {
 }
 
 .tag {
+  max-height: 13px;
   background: #f0f0f0;
-  border-radius: 10px;
-  padding: 6px 10px;
-  margin: 4px;
+  border-radius: 12px;
   display: flex;
+  margin: 2px;
   align-items: center;
   font-size: 14px;
 }

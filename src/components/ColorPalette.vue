@@ -160,7 +160,7 @@ async function addToFavorites() {
 
 .color-box {
   flex: 1;
-  height: 100px;
+  height: 120px;
   cursor: pointer;
 }
 
