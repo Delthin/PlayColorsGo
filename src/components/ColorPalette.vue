@@ -12,18 +12,15 @@ const props = defineProps<{
   fromFavorites?: boolean
 }>();
 
-
-const tooltip = ref({
-  visible: false,
-  color: '',
-  x: 0,
-  y: 0
+const notification = ref({
+  show: false,
+  message: '',
+  type: 'success' as 'success' | 'error'
 });
 
 // 控制菜单的显示状态
 const hoveredColor = ref('');
 const copiedColor = ref('');
-const menuVisible = ref(props.isActive);
 const user = ref<{ name: string } | null>(null);
 
 async function fetchUserInfo() {
@@ -37,20 +34,31 @@ async function fetchUserInfo() {
 }
 
 onMounted(() => {
-  if (!(sessionStorage.getItem('token') == '')) {
+  if (sessionStorage.getItem('token') != '') {
     fetchUserInfo();
   } else {
     user.value = null;
   }
 });
 
+// 通用通知函数
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+  notification.value = {
+    show: true,
+    message,
+    type
+  };
+  setTimeout(() => {
+    notification.value.show = false;
+  }, 2000);
+}
+
 // 复制调色板到剪切板
 function copyPalette() {
   const palette = props.colors.join(', ');
   navigator.clipboard.writeText(palette).then(() => {
-    alert(`Copied palette: ${palette}`);
+    showNotification('Palette copied to clipboard!');
   });
-  menuVisible.value = false;
 }
 
 
@@ -58,36 +66,26 @@ function openPalette() {
   const palette = props.colors.join(','); // Join colors into a single string for easy passing
   console.log("on openPalette");
   router.push({ path: '/preview', query: { colors: palette } });
-  menuVisible.value = false;
 }
 
 // 添加调色板到收藏
 async function addToFavorites() {
-  console.log("call addToFavorites");
-  console.log(user.value?.name);
   if (user.value != null) {
-    console.log("h here!")
     const name = user.value.name;
     const paletteId = props.paletteId;
-    console.log(paletteId);
     const url = `/api/users/addFavorite?name=${encodeURIComponent(name)}&paletteId=${encodeURIComponent(paletteId)}`;
-    console.log("about to call backend")
     try {
-      // 发起POST请求，调用后端接口
       const response = await axios.post(url, null);
-      console.log("in addToFavorites");
-      console.log(user.value.name);
       if (response.data.code === "000") {
-        console.log("Palette added to favorites successfully!");
-        alert("Successfully add to favorites!");
+        showNotification('Successfully added to favorites!', 'success');
       } else {
-        console.error("Failed to add to favorites:", response.data.msg);
+        showNotification('Failed to add to favorites', 'error');
       }
     } catch (error) {
-      console.error("Error while adding to favorites:", error);
+      showNotification('Error while adding to favorites', 'error');
     }
   } else {
-    alert("Please log in first!");
+    showNotification('Please log in first!', 'error');
   }
 }
 
@@ -108,6 +106,7 @@ function formatHexColor(color: string): string {
 function copyColor(color: string) {
   navigator.clipboard.writeText(color);
   copiedColor.value = color;
+  showNotification('Color copied to clipboard!');
   setTimeout(() => {
     copiedColor.value = '';
   }, 2000);
@@ -138,10 +137,6 @@ function copyColor(color: string) {
         </div>
       </div>
     </div>
-    <div class="copy-notification" v-if="copiedColor">
-      <i class="fas fa-check-circle"></i>
-      Color copied to clipboard!
-    </div>
     <div class="action-buttons">
       <button v-if="!fromFavorites" class="action-button" @click="addToFavorites" >
         <i class="fas fa-heart"></i>
@@ -155,6 +150,10 @@ function copyColor(color: string) {
         <i class="fas fa-eye"></i>
         <span class="tooltip">View Palette</span>
       </button>
+    </div>
+    <div class="notification" v-if="notification.show" :class="notification.type">
+      <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+      {{ notification.message }}
     </div>
   </div>
 </template>
@@ -232,7 +231,7 @@ function copyColor(color: string) {
   color: black;
 }
 
-.copy-notification {
+.notification {
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -249,8 +248,12 @@ function copyColor(color: string) {
   gap: 8px;
 }
 
-.copy-notification i {
+.notification.success i {
   color: #4CAF50;
+}
+
+.notification.error i {
+  color: #f44336;
 }
 
 @keyframes slideUp {
