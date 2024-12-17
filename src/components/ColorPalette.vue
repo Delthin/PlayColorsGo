@@ -65,7 +65,12 @@ function copyPalette() {
 function openPalette() {
   const palette = props.colors.join(','); // Join colors into a single string for easy passing
   console.log("on openPalette");
-  router.push({ path: '/preview', query: { colors: palette } });
+  router.push({
+    name: 'Preview', // 使用命名路由
+    query: { 
+      colors: palette
+    }
+  });
 }
 
 // 添加调色板到收藏
