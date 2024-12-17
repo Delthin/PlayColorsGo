@@ -53,6 +53,7 @@ watch(() => props.tags, async (newTags) => {
           :colors="palette.colors"
           :size="size"
           :is-active="false"
+          :from-favorites="true"
       />
     </template>
   </div>

@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/PaletteList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PaletteList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/composables/usePalettes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/composables/usePalettes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/colors.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/colors.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/favorites.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/favorites.vue" afterDir="false" />
-    </list>
+    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
