@@ -69,6 +69,7 @@ function updateTags(newTags: string[]) {
     layout="grid"
     size="large"
     :tags="tags"
+    :mode="'normal'"
   />
 </template>
 <!-- <template>
@@ -136,20 +137,4 @@ p {
   gap: 35px;
 } */
 
-.empty-state {
-  text-align: center;
-  margin-top: 100px;
-}
-
-.empty-state h3 {
-  font-size: 24px;
-  margin-top: 20px;
-  color: #333;
-}
-
-.empty-state p {
-  color: #666;
-  margin-top: 10px;
-  font-size: 16px;
-}
 </style>
