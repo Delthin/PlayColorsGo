@@ -293,7 +293,7 @@ function copyColor(color: string) {
   width: 36px;
   height: 36px;
   background: #ffffff;
-  border: 1px solid #e0e0e0;
+  border: none;
   border-radius: 50%;
   cursor: pointer;
   color: #2c3e50;
@@ -303,7 +303,6 @@ function copyColor(color: string) {
   justify-content: center;
   transition: all 0.2s ease;
   padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
 }
 

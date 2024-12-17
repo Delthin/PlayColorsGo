@@ -47,7 +47,7 @@ watch(() => props.tags, (newTags) => {
   /* 设置列间距自动平均分布 */
   justify-content: center;
   column-gap: 40px;
-  row-gap: 15px;
+  row-gap: 10px;
   padding: 40px;
 }
 
