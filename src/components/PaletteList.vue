@@ -64,7 +64,7 @@ watch(() => props.tags, async (newTags) => {
   grid-template-columns: repeat(auto-fit, minmax(200px, 340px));
   justify-content: center;
   column-gap: 40px;
-  row-gap: 15px;
+  row-gap: 10px;
   padding: 40px;
 }
 
