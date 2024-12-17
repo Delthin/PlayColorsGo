@@ -5,10 +5,11 @@ import {axios} from '../utils/request';
 import {userInfo} from "../api/user.ts";
 
 const props = defineProps<{
-  paletteId: number,
-  colors: string[],
-  fromFavorites?: boolean;
-  isActive: boolean;
+  paletteId: number
+  colors: string[]
+  isActive: boolean
+  size?: 'small' | 'medium' | 'large'  // 添加尺寸控制
+  fromFavorites?: boolean
 }>();
 
 
@@ -112,7 +113,7 @@ async function addToFavorites() {
 
 <template>
   <div class="palette-container">
-    <div class="palette">
+    <div class="palette" :class="[size || 'large']">
       <div
           v-for="color in colors"
           :key="color"
@@ -156,6 +157,18 @@ async function addToFavorites() {
   border-radius: 8px;
   width: 100%;
   overflow: hidden;
+}
+
+.palette.small {
+  height: 80px;
+}
+
+.palette.medium {
+  height: 120px;
+}
+
+.palette.large {
+  height: 160px;
 }
 
 .color-box {

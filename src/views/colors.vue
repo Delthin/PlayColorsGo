@@ -1,65 +1,76 @@
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue'
-import ColorPalette from '../components/ColorPalette.vue'
-import { ref, watch } from "vue";
-import {axios} from '../utils/request';
+import PaletteList from '../components/PaletteList.vue'import { ref, watch } from "vue";
+// import {axios} from '../utils/request';
+// import { ref, watch } from "vue";
 
-const palettes = ref<Array<{ id: number; colors: string[] }>>([]);
 const tags = ref<string[]>([]);
-
-const activePaletteId = ref<number | null>(null);
-
-function toggleMenu(paletteId: number) {
-  if (activePaletteId.value === paletteId) {
-    activePaletteId.value = null;
-  } else {
-    activePaletteId.value = paletteId;
-  }
-}
-
-async function fetchFilteredPalettes() {
-  try {
-    if (tags.value.length > 0) {
-      console.log(tags.value);
-      const tagsString = tags.value.map(tag => encodeURIComponent(tag)).join('&tags=');
-      const response = await axios.get(`/api/palettes/searchPalettes?tags=${tagsString}`);
-      if (response.data.code === '000') {
-        palettes.value = response.data.result.map((palette: any) => ({
-          id: palette.id,
-          colors: palette.colors,
-        }));
-      } else {
-        console.error("Failed to fetch filtered palettes:", response.data.msg);
-      }
-    } else {
-      const response = await axios.get("/api/palettes");
-      if (response.data.code === '000') {
-        palettes.value = response.data.result.map((palette: any) => ({
-          id: palette.id,
-          colors: palette.colors,
-        }));
-      } else {
-        console.error("Failed to fetch palettes:", response.data.msg);
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching filtered palettes:", error);
-  }
-}
-
-watch(tags, () => {
-  console.log("update palettes!");
-  fetchFilteredPalettes();
-}, { immediate: true, deep: true });
 
 function updateTags(newTags: string[]) {
   tags.value = newTags;
-  console.log("updateTags");
-  console.log(tags.value);
 }
+
+// const activePaletteId = ref<number | null>(null);
+
+// function toggleMenu(paletteId: number) {
+//   if (activePaletteId.value === paletteId) {
+//     activePaletteId.value = null;
+//   } else {
+//     activePaletteId.value = paletteId;
+//   }
+// }
+
+// async function fetchFilteredPalettes() {
+//   try {
+//     if (tags.value.length > 0) {
+//       console.log(tags.value);
+//       const tagsString = tags.value.map(tag => encodeURIComponent(tag)).join('&tags=');
+//       const response = await axios.get(`/api/palettes/searchPalettes?tags=${tagsString}`);
+//       if (response.data.code === '000') {
+//         palettes.value = response.data.result.map((palette: any) => ({
+//           id: palette.id,
+//           colors: palette.colors,
+//         }));
+//       } else {
+//         console.error("Failed to fetch filtered palettes:", response.data.msg);
+//       }
+//     } else {
+//       const response = await axios.get("/api/palettes");
+//       if (response.data.code === '000') {
+//         palettes.value = response.data.result.map((palette: any) => ({
+//           id: palette.id,
+//           colors: palette.colors,
+//         }));
+//       } else {
+//         console.error("Failed to fetch palettes:", response.data.msg);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error fetching filtered palettes:", error);
+//   }
+// }
+
+// watch(tags, () => {
+//   console.log("update palettes!");
+//   fetchFilteredPalettes();
+// }, { immediate: true, deep: true });
+
 </script>
 
 <template>
+  <Navbar @tags-update="updateTags"/>
+  <div class="container">
+    <h2>Popular Color Palettes</h2>
+    <p>Get inspired by thousands of beautiful color schemes and make something cool!</p>
+  </div>
+
+  <PaletteList 
+    layout="grid"
+    size="large"
+    :tags="tags"
+  />
+</template>
+<!-- <template>
   <Navbar @tags-update="updateTags"/>
   <div class="container">
     <h2>Popular Color Palettes</h2>
@@ -84,7 +95,7 @@ function updateTags(newTags: string[]) {
     </div>
   </div>
 
-</template>
+</template> -->
 <!--        :paletteId="palette.id"-->
 
 <style scoped>
@@ -115,14 +126,14 @@ p {
   font-size: 24px;
 }
 
-.palette-list {
+/* .palette-list {
   display: grid;
   //grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-template-columns: repeat(4, 1fr);
   width: 100%;
   padding: 0 40px;
   gap: 35px;
-}
+} */
 
 .empty-state {
   text-align: center;

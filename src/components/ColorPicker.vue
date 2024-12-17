@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { Shuffle, Palette, BookmarkPlus, RefreshCcw } from 'lucide-vue-next';
-
+import ColorLibrary from './ColorLibrary.vue';
 import { TinyColor, random } from '@ctrl/tinycolor';
 
 interface Props {
@@ -34,6 +34,9 @@ const originalColors = ref<TinyColor[]>([]);
 // 拖拽相关状态
 const draggedIndex = ref<number | null>(null);
 const dragOverIndex = ref<number | null>(null);
+
+// 添加状态
+const showLibrary = ref(false);
 
 function updateColor(newColor: string, index: number) {
   const newColors = [...props.modelValue];
@@ -129,7 +132,7 @@ function resetAdjustment() {
 
 function loadFromFavorites() {
   // 这里需要实现从收藏库加载颜色的逻辑
-  console.log('Load from favorites');
+  showLibrary.value = true;
 }
 
 function generateNewPalette() {
@@ -191,6 +194,7 @@ function handleDrop(event: DragEvent) {
   draggedIndex.value = null;
   dragOverIndex.value = null;
 }
+
 
 // 监听 props.modelValue 的变化
 watch(() => props.modelValue, (newValue) => {
@@ -339,7 +343,13 @@ watch(() => props.modelValue, (newValue) => {
 <!--        </div>-->
 <!--      </div>-->
     </div>
-
+    <ColorLibrary 
+      v-model="showLibrary"
+      @select="colors => {
+        emit('update:modelValue', colors);
+        emit('change', colors);
+      }"
+    />
   </div>
 </template>
 <style scoped>

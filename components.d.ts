@@ -7,16 +7,17 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ColorLibrary: typeof import('./src/components/ColorLibrary.vue')['default']
     ColorPalette: typeof import('./src/components/ColorPalette.vue')['default']
     ColorPicker: typeof import('./src/components/ColorPicker.vue')['default']
-    ElCol: typeof import('element-plus/es')['ElCol']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElContainer: typeof import('element-plus/es')['ElContainer']
-    ElRow: typeof import('element-plus/es')['ElRow']
     LoginModal: typeof import('./src/components/LoginModal.vue')['default']
     Navbar: typeof import('./src/components/Navbar.vue')['default']
+    PaletteList: typeof import('./src/components/PaletteList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SearchBox: typeof import('./src/components/SearchBox.vue')['default']
     SignUpModal: typeof import('./src/components/SignUpModal.vue')['default']
     UserProfileDropDown: typeof import('./src/components/UserProfileDropDown.vue')['default']
   }
