@@ -27,7 +27,7 @@ export function usePalettes() {
         return;
       }
       if (user.value.name) {
-        const response = await axios.get("/api/users/getFavorites", {
+        const response = await axios.post("/api/users/getFavorites", {
           params: { name: user.value.name }
         });
         if (response.data.code === '000') {
@@ -53,7 +53,7 @@ export function usePalettes() {
       if (tags && tags.length > 0) {
         console.log('Fetching filtered palettes with tags:', tags);
         const tagsString = tags.map(tag => encodeURIComponent(tag)).join('&tags=');
-        const response = await axios.get(`/api/users/searchFavorites`, {
+        const response = await axios.post(`/api/users/searchFavorites`, {
           params: {
             name: user.value.name,
             tags: tagsString,
@@ -68,7 +68,7 @@ export function usePalettes() {
           console.error("Failed to fetch filtered palettes:", response.data.msg);
         }
       } else {
-        const response = await axios.get("/api/users/getFavorites", {
+        const response = await axios.post("/api/users/getFavorites", {
           params: { name: user.value.name }
         });
         if (response.data.code === '000') {
@@ -91,14 +91,14 @@ export function usePalettes() {
       if (tags && tags.length > 0) {
         console.log('Fetching palettes with tags:', tags)
         const tagsString = tags.map(tag => encodeURIComponent(tag)).join('&tags=')
-        const response = await axios.get(`/api/palettes/searchPalettes?tags=${tagsString}`)
+        const response = await axios.post(`/api/palettes/searchPalettes?tags=${tagsString}`)
         if (response.data.code === '000') {
           palettes.value = response.data.result
           console.log('Fetched palettes:', palettes.value)
         }
       } else {
         console.log('Fetching all palettes')
-        const response = await axios.get("/api/palettes")
+        const response = await axios.post("/api/palettes")
         if (response.data.code === '000') {
           palettes.value = response.data.result
           console.log('Fetched palettes:', palettes.value)
