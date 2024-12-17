@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue" />
+    <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ColorLibrary.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ColorLibrary.vue" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

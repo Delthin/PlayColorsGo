@@ -7,6 +7,7 @@ import { Plus } from 'lucide-vue-next';  // 添加图标
 import { useRoute } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
 import SearchBox from './SearchBox.vue';
+import {usePalettes} from "../composables/usePalettes.ts";
 
 
 
@@ -68,10 +69,13 @@ function closeLibrary() {
     emit('update:modelValue', false);
 }
 
+const {fetchUserInfoAndFavorites, favorites} = usePalettes()
+
 // 组件挂载时加载数据
-onMounted(() => {
-    fetchUserInfo();
-    fetchUserPalettes();
+onMounted(async () => {
+    // async fetchUserInfo();
+    // async fetchUserPalettes();
+  await fetchUserInfoAndFavorites()
 });
 
 function handleOverlayClick(event: MouseEvent) {
@@ -102,10 +106,10 @@ function handleSearchClose() {
     searchTags.value = [];
 }
 
-// 监听搜索和筛选条件变化
-watch([searchQuery, filterType], () => {
-    fetchUserPalettes();
-});
+// // 监听搜索和筛选条件变化
+// watch([searchQuery, filterType], () => {
+//     fetchUserPalettes();
+// });
 </script>
 
 <template>
@@ -135,23 +139,23 @@ watch([searchQuery, filterType], () => {
                 <template v-if="activeTab === 'library'">
                     <!-- 原有的library内容 -->
                     <div class="toolbar">
-                        <select v-model="filterType">
-                            <option value="all">All palettes</option>
-                            <option value="recent">Recent</option>
-                            <option value="favorite">Favorites</option>
-                        </select>
-                        <SearchBox placeholder="Search favorites..." @search="handleSearch"
-                            @close="handleSearchClose" />
+<!--                        <select v-model="filterType">-->
+<!--                            <option value="all">All palettes</option>-->
+<!--                            <option value="recent">Recent</option>-->
+<!--                            <option value="favorite">Favorites</option>-->
+<!--                        </select>-->
+<!--                        <SearchBox placeholder="Search favorites..." @search="handleSearch"-->
+<!--                            @close="handleSearchClose" />-->
                     </div>
 
                     <div class="divider"></div>
 
                     <!-- 调色板列表 -->
                     <div class="palettes-grid">
-                        <div v-for="palette in palettes" :key="palette.id" class="palette-item"
+                        <div v-for="palette in favorites" :key="palette.id" class="palette-item"
                             @click="selectPalette(palette.colors)">
                             <ColorPalette :paletteId="palette.id" :colors="palette.colors" :isActive="false"
-                                :fromFavorites="true" />
+                                :fromFavorites="true" :size="'small'"/>
                             <div class="palette-name">{{ palette.name || `Palette ${palette.id}` }}</div>
                         </div>
                     </div>
