@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {defineProps, onMounted, ref} from 'vue';
-import {router} from "../router";
-import {axios} from '../utils/request';
-import {userInfo} from "../api/user.ts";
+import { defineProps, onMounted, ref } from 'vue';
+import { router } from "../router";
+import { axios } from '../utils/request';
+import { userInfo } from "../api/user.ts";
 
 const props = defineProps<{
   paletteId: number
@@ -35,9 +35,9 @@ async function fetchUserInfo() {
 }
 
 onMounted(() => {
-  if(!(sessionStorage.getItem('token') == '')) {
+  if (!(sessionStorage.getItem('token') == '')) {
     fetchUserInfo();
-  } else{
+  } else {
     user.value = null;
   }
 });
@@ -79,12 +79,18 @@ function openPalette() {
   menuVisible.value = false;
 }
 
+// function handleClickOutside(event: MouseEvent) {
+//   const menuContainer = document.querySelector('.menu-button-container');
+//   if (menuVisible.value && menuContainer && !menuContainer.contains(event.target as Node)) {
+//     menuVisible.value = false;
+//   }
+// }
 
 // 添加调色板到收藏
 async function addToFavorites() {
   console.log("call addToFavorites");
   console.log(user.value?.name);
-  if(user.value != null) {
+  if (user.value != null) {
     console.log("h here!")
     const name = user.value.name;
     const paletteId = props.paletteId;
@@ -109,36 +115,47 @@ async function addToFavorites() {
     alert("Please log in first!");
   }
 }
+
+// 组件挂载时添加事件监听
+// onMounted(() => {
+//   if(!(sessionStorage.getItem('token') == '')) {
+//     fetchUserInfo();
+//   } else{
+//     user.value = null;
+//   }
+//   document.addEventListener('click', handleClickOutside);
+// });
+
+// // 组件卸载时移除事件监听
+// onUnmounted(() => {
+//   document.removeEventListener('click', handleClickOutside);
+// });
 </script>
 
 <template>
   <div class="palette-container">
     <div class="palette" :class="[size || 'large']">
-      <div
-          v-for="color in colors"
-          :key="color"
-          :style="{ backgroundColor: color }"
-          class="color-box"
-          @mouseenter="showTooltip(color, $event)"
-          @mouseleave="hideTooltip"
-      >
-        <!-- 显示颜色值的工具提示 -->
-        <span v-if="tooltip.visible && tooltip.color === color" class="tooltip" :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
+      <div v-for="color in colors" :key="color" :style="{ backgroundColor: color }" class="color-box"
+        @mouseenter="showTooltip(color, $event)" @mouseleave="hideTooltip">
+        <span v-if="tooltip.visible && tooltip.color === color" class="tooltip"
+          :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
           {{ color }}
         </span>
       </div>
     </div>
-
-    <!-- 右下方的菜单按钮（三个点） -->
-    <div class="menu-button-container">
-      <button class="menu-button" @click.stop="toggleMenu">● ● ●</button>
-      <div v-if="menuVisible" class="dropdown-menu">
-        <ul>
-          <li @click="copyPalette">Copy Palette</li>
-          <li @click="openPalette">View Palette</li>
-          <li v-if="!fromFavorites" @click="addToFavorites">Add to Favorites</li>
-        </ul>
-      </div>
+    <div class="action-buttons">
+      <button v-if="!fromFavorites" class="action-button" @click="addToFavorites" >
+        <i class="fas fa-heart"></i>
+        <span class="tooltip">Add to Favorites</span>
+      </button>
+      <button class="action-button" @click="copyPalette" >
+        <i class="fas fa-copy"></i>
+        <span class="tooltip">Copy Palette</span>
+      </button>
+      <button class="action-button" @click="openPalette" >
+        <i class="fas fa-eye"></i>
+        <span class="tooltip">View Palette</span>
+      </button>
     </div>
   </div>
 </template>
@@ -147,34 +164,40 @@ async function addToFavorites() {
 .palette-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  position: relative;
+  padding-bottom: 40px;
+  /* 为菜单按钮留出空间 */
+}
+
+.palette-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .palette {
   display: flex;
-  gap: 0;
-  margin: 15px 0;
-  border-radius: 8px;
   width: 100%;
   overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 
 .palette.small {
-  height: 80px;
+  height: 40px;
 }
 
 .palette.medium {
-  height: 120px;
+  height: 80px;
 }
 
 .palette.large {
-  height: 160px;
+  height: 120px;
 }
 
 .color-box {
   flex: 1;
-  height: 120px;
   cursor: pointer;
+  transition: transform 0.2s;
 }
 
 .tooltip {
@@ -190,45 +213,70 @@ async function addToFavorites() {
   z-index: 10;
 }
 
-.menu-button-container {
+.action-buttons {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.action-button {
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #2c3e50;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: relative;
 }
 
-.menu-button {
-  font-size: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #403f3f;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 25px;
-  right: 0;
+.action-button:hover {
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-color: #d0d0d0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.action-button .tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 6px 12px;
   border-radius: 4px;
-  overflow: hidden;
-  z-index: 10;
-  width: 150px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
 }
 
-.dropdown-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.action-button:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
-.dropdown-menu li {
-  padding: 8px 12px;
-  font-size: 16px;
-  cursor: pointer;
-  color: #666;
-  font-family: 'Arial', sans-serif;
-}
-
-.dropdown-menu li:hover {
-  background-color: #f0f0f0;
+/* 添加小箭头 */
+.action-button .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
 }
 </style>

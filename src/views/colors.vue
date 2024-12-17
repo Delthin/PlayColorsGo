@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import Navbar from '../components/Navbar.vue'
-import PaletteList from '../components/PaletteList.vue'import { ref, watch } from "vue";
+import Navbar from '../components/Navbar.vue';
+import PaletteList from '../components/PaletteList.vue';
+import { ref, watch } from "vue";
 // import {axios} from '../utils/request';
 // import { ref, watch } from "vue";
 

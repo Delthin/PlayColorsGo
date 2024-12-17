@@ -5,6 +5,9 @@ import { axios } from '../utils/request';
 import { userInfo } from '../api/user';
 import { Plus } from 'lucide-vue-next';  // 添加图标
 import { useRoute } from 'vue-router';   // 添加路由
+import PaletteList from './PaletteList.vue';
+import SearchBox from './SearchBox.vue';
+
 
 
 const showLibrary = ref(false);
@@ -14,6 +17,8 @@ const filterType = ref('all');
 const palettes = ref<Array<{ id: number; name: string; colors: string[] }>>([]);
 const user = ref<{ name: string } | null>(null);
 const route = useRoute();
+const searchTags = ref<string[]>([]);
+
 
 // 定义 props 和 emits
 const props = defineProps<{
@@ -89,6 +94,14 @@ function handleAddToFavorites() {
     }
 }
 
+function handleExploreSearch(query: string) {
+    searchTags.value = query ? [query] : [];
+}
+
+function handleSearchClose() {
+    searchTags.value = [];
+}
+
 // 监听搜索和筛选条件变化
 watch([searchQuery, filterType], () => {
     fetchUserPalettes();
@@ -118,28 +131,43 @@ watch([searchQuery, filterType], () => {
 
                 <div class="divider"></div>
 
-                <!-- 工具栏 -->
-                <div class="toolbar">
-                    <select v-model="filterType">
-                        <option value="all">All palettes</option>
-                        <option value="recent">Recent</option>
-                        <option value="favorite">Favorites</option>
-                    </select>
-
-                    <SearchBox placeholder="Search palettes..." @search="handleSearch" @close="handleSearchClose" />
-                </div>
-
-                <div class="divider"></div>
-
-                <!-- 调色板列表 -->
-                <div class="palettes-grid">
-                    <div v-for="palette in palettes" :key="palette.id" class="palette-item"
-                        @click="selectPalette(palette.colors)">
-                        <ColorPalette :paletteId="palette.id" :colors="palette.colors" :isActive="false"
-                            :fromFavorites="true" />
-                        <div class="palette-name">{{ palette.name || `Palette ${palette.id}` }}</div>
+                <!-- 根据activeTab显示不同内容 -->
+                <template v-if="activeTab === 'library'">
+                    <!-- 原有的library内容 -->
+                    <div class="toolbar">
+                        <select v-model="filterType">
+                            <option value="all">All palettes</option>
+                            <option value="recent">Recent</option>
+                            <option value="favorite">Favorites</option>
+                        </select>
+                        <SearchBox placeholder="Search favorites..." @search="handleSearch"
+                            @close="handleSearchClose" />
                     </div>
-                </div>
+
+                    <div class="divider"></div>
+
+                    <!-- 调色板列表 -->
+                    <div class="palettes-grid">
+                        <div v-for="palette in palettes" :key="palette.id" class="palette-item"
+                            @click="selectPalette(palette.colors)">
+                            <ColorPalette :paletteId="palette.id" :colors="palette.colors" :isActive="false"
+                                :fromFavorites="true" />
+                            <div class="palette-name">{{ palette.name || `Palette ${palette.id}` }}</div>
+                        </div>
+                    </div>
+                </template>
+
+                <template v-else>
+                    <!-- Explore内容 -->
+                    <div class="toolbar">
+                        <SearchBox placeholder="Search palettes..." @search="handleExploreSearch"
+                            @close="handleSearchClose" />
+                    </div>
+                    <div class="divider"></div>
+                    <div class="explore-content">
+                        <PaletteList layout="list" size="small" :tags="searchTags" />
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -267,5 +295,16 @@ select {
     margin-top: 8px;
     font-size: 14px;
     color: #666;
+}
+
+.explore-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.library-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
