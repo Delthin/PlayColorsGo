@@ -365,11 +365,14 @@ watch(() => props.modelValue, (newValue) => {
   padding: 10px 20px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  gap: 20px;
 }
 
 .color-controls {
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 0; /* 允许flex item缩小到比内容更小 */
 }
 
 .palette {
