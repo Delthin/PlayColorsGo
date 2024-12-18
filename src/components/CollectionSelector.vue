@@ -73,9 +73,7 @@ onMounted(async () => {
                 @input="$emit('update:selectedCollection', ($event.target as HTMLSelectElement).value)">
                 <option value="" disabled selected>Select a Collection</option>
                 <!-- <option value="all">All Collections</option> -->
-                <option v-for="collection in collections" 
-                        :key="collection" 
-                        :value="collection">
+                <option v-for="collection in collections" :key="collection" :value="collection">
                     {{ collection }}
                 </option>
             </select>
@@ -87,20 +85,26 @@ onMounted(async () => {
     </div>
 
     <!-- 创建收藏夹弹窗 -->
-    <div class="dialog-overlay" v-if="showDialog" @click="showDialog = false">
-        <div class="dialog" @click.stop>
+    <div class="modal-overlay" v-if="showDialog" @click="showDialog = false">
+        <div class="modal-content" @click.stop>
             <button class="close-btn" @click="showDialog = false">✕</button>
-            <h3>Create New Collection</h3>
-            <input type="text" v-model="newCollectionName" placeholder="Enter collection name">
-            <div class="dialog-buttons">
-                <button class="cancel-btn" @click="showDialog = false">Cancel</button>
-                <button @click="handleCreateCollection" class="create-btn">Create</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Collection</h3>
             </div>
+            <div class="form-group">
+                <label class="form-label">Collection Name</label>
+                <input type="text" v-model="newCollectionName" class="form-input" placeholder="Enter collection name">
+            </div>
+            <button @click="handleCreateCollection" class="btn btn-primary">
+                Create Collection
+            </button>
         </div>
     </div>
 </template>
 
 <style scoped>
+@import '../styles/modal.css';
+
 .collection-controls {
     display: flex;
     justify-content: center;
@@ -119,8 +123,10 @@ onMounted(async () => {
 
 .collection-selector select {
     width: 100%;
-    padding: 8px 12px; /* 减小内边距 */
-    height: 40px; /* 固定高度 */
+    padding: 8px 12px;
+    /* 减小内边距 */
+    height: 40px;
+    /* 固定高度 */
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 14px;
@@ -135,7 +141,8 @@ onMounted(async () => {
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
-    line-height: 20px; /* 添加行高控制 */
+    line-height: 20px;
+    /* 添加行高控制 */
 }
 
 .collection-selector select:hover {
@@ -170,9 +177,11 @@ onMounted(async () => {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.02);
     }
+
     100% {
         transform: scale(1);
     }
@@ -181,9 +190,10 @@ onMounted(async () => {
 .create-btn {
     padding: 12px 20px;
     min-width: 140px;
-    background-color: #3498db;  /* 明亮的蓝色 */
+    background-color: #3498db;
+    /* 明亮的蓝色 */
     color: white;
-    border: none;    
+    border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
@@ -196,7 +206,8 @@ onMounted(async () => {
 }
 
 .create-btn:hover {
-    background-color: #2980b9;  /* 深蓝色 */
+    background-color: #2980b9;
+    /* 深蓝色 */
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
 }
@@ -238,107 +249,5 @@ onMounted(async () => {
     border-width: 5px;
     border-style: solid;
     border-color: #333 transparent transparent transparent;
-}
-
-.dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.dialog {
-    background-color: white;
-    padding: 30px;
-    border-radius: 12px;
-    min-width: 300px;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #666;
-    cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-}
-
-.dialog h3 {
-    margin: 0 0 20px;
-    font-size: 26px;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.dialog input {
-    width: 88%;
-    padding: 12px 16px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    margin-bottom: 16px;
-    transition: all 0.2s ease;
-}
-
-.dialog input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.dialog-buttons {
-    display: flex;
-    justify-content: stretch;  /* 改为stretch实现平铺 */
-    gap: 12px;
-    margin: 0 -30px -30px;  /* 负边距扩展到边缘 */
-    padding: 15px 10px;
-    border-top: 1px solid #eee;
-}
-
-.dialog-buttons button {
-    flex: 1;  /* 平均分配空间 */
-    padding: 16px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.dialog-buttons .cancel-btn {
-    background-color: #e9ecef;  /* 加深背景色 */
-    color: #495057;  /* 加深文字色 */
-    border: 1px solid #dee2e6;
-}
-
-.dialog-buttons .cancel-btn:hover {
-    background-color: #dee2e6;
-    color: #212529;
-}
-
-.dialog-buttons .create-btn {
-    background-color: #28a745;  /* 改为绿色 */
-    color: white;
-    border: 1px solid #28a745;
-}
-
-.dialog-buttons .create-btn:hover {
-    background-color: #218838;  /* 深绿色 */
-    border-color: #1e7e34;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
 }
 </style>

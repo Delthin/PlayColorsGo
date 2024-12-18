@@ -76,19 +76,22 @@ onMounted(() => {
   <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
       <button class="close-btn" @click="$emit('close')">✕</button>
-      <h2>Save Palette</h2>
+      <div class="modal-header">
+        <h2 class="modal-title">Save Palette</h2>
+      </div>
       <div class="form-group">
-        <label>Palette Name</label>
+        <label class="form-label">Palette Name</label>
         <input 
           v-model="paletteName"
+          class="form-input"
           type="text"
           placeholder="Enter palette name"
           required
         />
       </div>
       <div class="form-group">
-        <label>Collection</label>
-        <select v-model="selectedCollection" required>
+        <label class="form-label">Collection</label>
+        <select v-model="selectedCollection" class="form-select" required>
           <option value="">Select a collection</option>
           <option v-for="collection in collections" 
                   :key="collection" 
@@ -97,79 +100,11 @@ onMounted(() => {
           </option>
         </select>
       </div>
-      <button class="save-btn" @click="handleSave">Save</button>
+      <button class="btn btn-primary" @click="handleSave">Save</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-h2 {
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-input, select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.save-btn:hover {
-  background: #0056b3;
-}
+@import '../styles/modal.css';
 </style>

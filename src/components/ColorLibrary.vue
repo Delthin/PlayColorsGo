@@ -274,13 +274,14 @@ watch(selectedCollection, async (newValue) => {
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 18px;
+    font-family: 'Poppins', sans-serif;
     cursor: pointer;
     color: grey;
 }
 
 .tabs button.active {
     color: #333;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .divider {
