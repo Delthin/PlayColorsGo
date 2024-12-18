@@ -8,7 +8,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auto-imports.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/auto-imports.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/composables/usePalettes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/composables/usePalettes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/user.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/collection/CollectionSelector.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/collection/CollectionSelector.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/collection/SavePaletteModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/collection/SavePaletteModal.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +71,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "http.proxy",
-    "ts.external.directory.path": "D:\\learnerqxm\\codes\\HCI_Fall2024\\hci\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\L\\Desktop\\code\\HCI\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {

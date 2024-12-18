@@ -43,10 +43,10 @@ export const getFavorites = (userName: string, collectionName: string) => {
 }
 
 // 添加调色板到收藏夹
-export const addFavorite = (userName: string, paletteId: number, collectionName: string) => {
-    return axios.post(`${USER_MODULE}/addFavorite`, null, {
-        params: {userName, paletteId, collectionName}
-    })
+export const addFavorite = (userName: string, colors: string[], paletteName: string, collectionName: string) => {
+    // 将 colors 数组展开为多个查询参数 colors=color1&colors=color2...
+    const colorParams = colors.map(color => `colors=${encodeURIComponent(color)}`).join('&');
+    return axios.post(`${USER_MODULE}/addFavorite?userName=${encodeURIComponent(userName)}&${colorParams}&paletteName=${encodeURIComponent(paletteName)}&collectionName=${encodeURIComponent(collectionName)}`);
 }
 
 // 在收藏夹中搜索

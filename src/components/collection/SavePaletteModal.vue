@@ -55,7 +55,8 @@ async function handleSave() {
   try {
     const response = await addFavorite(
       user.value.name,
-      props.paletteId,
+      props.colors,
+      paletteName.value,
       selectedCollection.value,
     )
     
