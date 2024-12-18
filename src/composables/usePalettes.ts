@@ -1,6 +1,6 @@
 import { ref, Ref } from 'vue'
 import { axios } from '../utils/request'
-import {getUserInfo} from "../api/user.ts";
+import { getUserInfo, getFavorites } from "../api/user.ts"
 
 export interface Palette {
   id: number
@@ -8,100 +8,101 @@ export interface Palette {
   name?: string
 }
 
+export interface Collection {
+  name: string
+  palettes: Palette[]
+}
+
 export function usePalettes() {
   const palettes = ref<Palette[]>([])
   const loading = ref(false)
-  const favorites = ref<Array<{ id: number; colors: string[] }>>([]);
-  const user = ref<{ name: string } >({ name: "" });
+  const favorites = ref<Palette[]>([])
+  const collections = ref<string[]>([])
+  const user = ref<{ name: string }>({ name: "" })
+  const currentCollection = ref<string>('all')
 
-  async function fetchUserInfoAndFavorites() {
-    console.log("fetchUserInfoAndFavorites in favorites.vue_begin!");
+  // 获取用户信息和收藏夹列表
+  async function fetchUserInfoAndCollections() {
     try {
-      const res = await getUserInfo();
+      const res = await getUserInfo()
       if (res.data.code === '000') {
-        console.log("fetchUserInfo in favorites.vue!");
-        user.value = { name: res.data.result.name };
-        console.log(user.value.name);
-      } else {
-        console.error("Failed to fetch user info:", res.data.msg);
-        return;
-      }
-      if (user.value.name) {
-        const response = await axios.post("/api/users/getFavorites", {
-          params: { name: user.value.name }
-        });
-        if (response.data.code === '000') {
-          favorites.value = response.data.result.map((palette: any) => ({
-            id: palette.id,
-            colors: palette.colors
-          }));
-          console.log("!!!", favorites.value);
-        } else {
-          console.error("Failed to fetch favorites:", response.data.msg);
-        }
-      } else {
-        console.warn("Username is not available yet");
+        user.value = { name: res.data.result.name }
+        collections.value = ['all', ...res.data.result.paletteCollections.map((c: any) => c.name)]
       }
     } catch (error) {
-      console.error("Error fetching user info or favorites:", error);
+      console.error("Error fetching user info:", error)
     }
-    console.log("fetchUserInfoAndFavorites in favorites.vue_end!");
   }
 
-  async function fetchFilteredFavorites(tags?: string[]) {
+  // 获取指定收藏夹的调色板
+  async function fetchCollectionPalettes(collectionName: string = 'all') {
+    if (!user.value.name) return
+    
     try {
-      if (tags && tags.length > 0) {
-        console.log('Fetching filtered palettes with tags:', tags);
-        const tagsString = tags.map(tag => encodeURIComponent(tag)).join('&tags=');
-        const response = await axios.post(`/api/users/searchFavorites`, {
-          params: {
-            name: user.value.name,
-            tags: tagsString,
-          }
-        });
-        if (response.data.code === '000') {
-          favorites.value = response.data.result.map((palette: any) => ({
-            id: palette.id,
-            colors: palette.colors,
-          }));
-        } else {
-          console.error("Failed to fetch filtered palettes:", response.data.msg);
-        }
-      } else {
-        const response = await axios.post("/api/users/getFavorites", {
-          params: { name: user.value.name }
-        });
-        if (response.data.code === '000') {
-          favorites.value = response.data.result.map((palette: any) => ({
-            id: palette.id,
-            colors: palette.colors,
-          }));
-        } else {
-          console.error("Failed to fetch palettes:", response.data.msg);
-        }
+      loading.value = true
+      const response = await getFavorites(user.value.name, collectionName === 'all' ? '' : collectionName)
+      
+      if (response.data.code === '000') {
+        favorites.value = response.data.result.map((palette: any) => ({
+          id: palette.id,
+          colors: palette.colors,
+          name: palette.name
+        }))
       }
     } catch (error) {
-      console.error("Error fetching filtered palettes:", error);
+      console.error("Error fetching collection palettes:", error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 根据标签筛选收藏夹内容
+  async function fetchFilteredFavorites(tags?: string[]) {
+    if (!user.value.name) return
+
+    try {
+      loading.value = true
+      if (tags && tags.length > 0) {
+        const response = await axios.post('/api/users/searchFavorites', null, {
+          params: {
+            userName: user.value.name,
+            tags,
+            collectionName: currentCollection.value === 'all' ? '' : currentCollection.value
+          }
+        })
+        
+        if (response.data.code === '000') {
+          favorites.value = response.data.result.map((palette: any) => ({
+            id: palette.id,
+            colors: palette.colors,
+            name: palette.name
+          }))
+        }
+      } else {
+        await fetchCollectionPalettes(currentCollection.value)
+      }
+    } catch (error) {
+      console.error("Error fetching filtered palettes:", error)
+    } finally {
+      loading.value = false
     }
   }
   
+  // 获取探索页面的调色板
   async function fetchPalettes(tags?: string[]) {
     loading.value = true
     try {
       if (tags && tags.length > 0) {
-        console.log('Fetching palettes with tags:', tags)
-        const tagsString = tags.map(tag => encodeURIComponent(tag)).join('&tags=')
-        const response = await axios.post(`/api/palettes/searchPalettes?tags=${tagsString}`)
+        const response = await axios.post('/api/palettes/searchPalettes', null, {
+          params: { tags }
+        })
         if (response.data.code === '000') {
           palettes.value = response.data.result
-          console.log('Fetched palettes:', palettes.value)
         }
       } else {
-        console.log('Fetching all palettes')
         const response = await axios.post("/api/palettes")
         if (response.data.code === '000') {
           palettes.value = response.data.result
-          console.log('Fetched palettes:', palettes.value)
         }
       }
     } catch (error) {
@@ -111,12 +112,22 @@ export function usePalettes() {
     }
   }
 
+  // 切换收藏夹
+  async function switchCollection(collectionName: string) {
+    currentCollection.value = collectionName
+    await fetchCollectionPalettes(collectionName)
+  }
+
   return {
     palettes,
     loading,
+    favorites,
+    collections,
+    currentCollection,
     fetchPalettes,
-    fetchUserInfoAndFavorites,
+    fetchUserInfoAndCollections,
+    fetchCollectionPalettes,
     fetchFilteredFavorites,
-    favorites
+    switchCollection
   }
 }

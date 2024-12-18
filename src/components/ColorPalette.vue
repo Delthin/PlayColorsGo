@@ -75,20 +75,16 @@ function openPalette() {
 
 // 添加调色板到收藏
 async function addToFavorites() {
-  if (user.value != null) {
-    showSaveModal.value = true
-  } else {
+  if (!user.value) {
     showNotification('Please log in first!', 'error')
+    return;
   }
+  showSaveModal.value = true;
 }
 
 async function handleSavePalette(data: { success: boolean, message: string }) {
-  if (data.success) {
-    showNotification('成功添加到收藏夹!', 'success')
-  } else {
-    showNotification(data.message, 'error')
-  }
-  showSaveModal.value = false
+  showNotification(data.message, data.success ? 'success' : 'error');
+  showSaveModal.value = false;
 }
 
 function isLightColor(color: string): boolean {

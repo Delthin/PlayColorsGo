@@ -1,35 +1,50 @@
 <script setup lang="ts">
-import {usePalettes} from '../composables/usePalettes'
+import { ref, watch, onMounted } from 'vue';
+import { usePalettes } from '../composables/usePalettes'
 import ColorPalette from './ColorPalette.vue'
-import {defineProps, onMounted, watch} from 'vue'
 
 const props = defineProps<{
-  layout?: 'grid' | 'list'
-  size?: 'small' | 'medium' | 'large'
+  layout: 'grid' | 'list'
+  size: 'small' | 'medium' | 'large'
   tags?: string[]
-  mode?: 'normal' | 'favorites'
-}>()
+  mode?: 'favorites' | 'explore'
+  collection?: string
+}>();
 
-const {palettes, loading, fetchPalettes, fetchFilteredFavorites, fetchUserInfoAndFavorites, favorites} = usePalettes()
+const { 
+  palettes, 
+  loading, 
+  favorites,
+  fetchPalettes, 
+  fetchFilteredFavorites, 
+  fetchUserInfoAndCollections,
+  switchCollection
+} = usePalettes()
 
 onMounted(async () => {
   if (props.mode === 'favorites') {
-    console.log("before fetchUserInfoAndFavorites")
-    await fetchUserInfoAndFavorites()
-    console.log("after fetchUserInfoAndFavorites",favorites)
+    await fetchUserInfoAndCollections()
+    if (props.collection) {
+      await switchCollection(props.collection)
+    }
   } else {
     await fetchPalettes(props.tags)
   }
 })
 
+watch(() => props.collection, async (newCollection) => {
+  if (props.mode === 'favorites' && newCollection) {
+    await switchCollection(newCollection)
+  }
+})
+
 watch(() => props.tags, async (newTags) => {
-  console.log('Tags changed:', newTags)
   if (props.mode === 'favorites') {
     await fetchFilteredFavorites(newTags)
   } else {
     await fetchPalettes(newTags)
   }
-}, {deep: true})
+}, { deep: true })
 </script>
 
 <template>
@@ -39,21 +54,13 @@ watch(() => props.tags, async (newTags) => {
     </template>
     <template v-else>
       <ColorPalette
-          v-for="palette in palettes"
-          :key="palette.id"
-          :palette-id="palette.id"
-          :colors="palette.colors"
-          :size="size"
-          :is-active="false"
-      />
-      <ColorPalette
-          v-for="palette in favorites"
-          :key="palette.id"
-          :palette-id="palette.id"
-          :colors="palette.colors"
-          :size="size"
-          :is-active="false"
-          :from-favorites="true"
+        v-for="palette in (mode === 'favorites' ? favorites : palettes)"
+        :key="palette.id"
+        :palette-id="palette.id"
+        :colors="palette.colors"
+        :size="size"
+        :is-active="false"
+        :from-favorites="mode === 'favorites'"
       />
     </template>
   </div>

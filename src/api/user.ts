@@ -37,21 +37,21 @@ export const updateUserInfo = (userInfo: UserInfo) => {
 
 // 获取特定收藏夹中的调色板
 export const getFavorites = (userName: string, collectionName: string) => {
-    return axios.post(`${API_MODULE}/getFavorites`, null, {
+    return axios.post(`${USER_MODULE}/getFavorites`, null, {
         params: {userName, collectionName}
     })
 }
 
 // 添加调色板到收藏夹
 export const addFavorite = (userName: string, paletteId: number, collectionName: string) => {
-    return axios.post(`${API_MODULE}/addFavorite`, null, {
+    return axios.post(`${USER_MODULE}/addFavorite`, null, {
         params: {userName, paletteId, collectionName}
     })
 }
 
 // 在收藏夹中搜索
 export const searchFavorites = (userName: string, tags: string[], collectionName: string) => {
-    return axios.post(`${API_MODULE}/searchFavorites`, null, {
+    return axios.post(`${USER_MODULE}/searchFavorites`, null, {
         params: {userName, tags, collectionName}
     })
 }

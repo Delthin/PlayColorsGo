@@ -8,7 +8,7 @@ import { useRoute } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
 import SearchBox from './SearchBox.vue';
 import {usePalettes} from "../composables/usePalettes.ts";
-
+import SavePaletteModal from './SavePaletteModal.vue'
 
 
 const showLibrary = ref(false);
@@ -19,6 +19,10 @@ const palettes = ref<Array<{ id: number; name: string; colors: string[] }>>([]);
 const user = ref<{ name: string } | null>(null);
 const route = useRoute();
 const searchTags = ref<string[]>([]);
+
+const showSaveModal = ref(false)
+const selectedPalette = ref<{id: number, colors: string[]} | null>(null)
+
 
 
 // 定义 props 和 emits
@@ -85,17 +89,26 @@ function handleOverlayClick(event: MouseEvent) {
 }
 
 function handleAddToFavorites() {
-    // 从路由中获取颜色信息
     const colorQuery = route.query.colors as string;
     if (colorQuery) {
         const colors = colorQuery.split(',');
-        console.log('Colors to be added to favorites:', colors);
-        // TODO: 在这里调用添加收藏接口
-        // await axios.post('/api/users/addFavorite', {
-        //     name: user.value?.name,
-        //     colors: colors
-        // });
+        // 设置要保存的调色板信息
+        selectedPalette.value = {
+            id: Date.now(), // 临时ID，实际应该从后端获取
+            colors: colors
+        };
+        showSaveModal.value = true;
     }
+}
+
+function handleSavePalette(data: { success: boolean, message: string }) {
+    if (data.success) {
+        ElMessage.success('成功添加到收藏夹!');
+        fetchUserInfoAndFavorites(); // 刷新收藏列表
+    } else {
+        ElMessage.error(data.message);
+    }
+    showSaveModal.value = false;
 }
 
 function handleExploreSearch(query: string) {
@@ -106,10 +119,6 @@ function handleSearchClose() {
     searchTags.value = [];
 }
 
-// // 监听搜索和筛选条件变化
-// watch([searchQuery, filterType], () => {
-//     fetchUserPalettes();
-// });
 </script>
 
 <template>
@@ -168,6 +177,14 @@ function handleSearchClose() {
             </div>
         </div>
     </div>
+    <SavePaletteModal
+        v-if="showSaveModal && selectedPalette"
+        :show="showSaveModal"
+        :palette-id="selectedPalette.id"
+        :colors="selectedPalette.colors"
+        @close="showSaveModal = false"
+        @save="handleSavePalette"
+    />
 </template>
 
 <style scoped>
