@@ -56,6 +56,46 @@ export function usePalettes() {
     }
   }
 
+  async function fetchAllCollectionsPalettes() {
+    if (!user.value.name) return;
+    
+    try {
+      loading.value = true;
+      // 1. 获取用户信息和收藏夹列表
+      const userInfoRes = await getUserInfo();
+      if (userInfoRes.data.code === '000') {
+        user.value = { name: userInfoRes.data.result.name };
+        // 获取除'all'之外的所有收藏夹
+        const userCollections = userInfoRes.data.result.paletteCollections.map((c: any) => c.name);
+        collections.value = ['all', ...userCollections];
+        
+        // 2. 获取每个收藏夹的调色板
+        const allPalettes: Palette[] = [];
+        for (const collection of userCollections) {
+          const response = await getFavorites(user.value.name, collection);
+          if (response.data.code === '000') {
+            const palettes = response.data.result.map((palette: any) => ({
+              id: palette.id,
+              colors: palette.colors,
+              name: palette.name
+            }));
+            allPalettes.push(...palettes);
+          }
+        }
+        
+        // 3. 去重并更新 favorites
+        const uniquePalettes = Array.from(
+          new Map(allPalettes.map(palette => [palette.id, palette])).values()
+        );
+        favorites.value = uniquePalettes;
+      }
+    } catch (error) {
+      console.error("Error fetching all collections palettes:", error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // 根据标签筛选收藏夹内容
   async function fetchFilteredFavorites(tags?: string[]) {
     if (!user.value.name) return
@@ -112,10 +152,13 @@ export function usePalettes() {
     }
   }
 
-  // 切换收藏夹
   async function switchCollection(collectionName: string) {
-    currentCollection.value = collectionName
-    await fetchCollectionPalettes(collectionName)
+    currentCollection.value = collectionName;
+    if (collectionName === 'all') {
+      await fetchAllCollectionsPalettes();
+    } else {
+      await fetchCollectionPalettes(collectionName);
+    }
   }
 
   return {
@@ -128,6 +171,7 @@ export function usePalettes() {
     fetchUserInfoAndCollections,
     fetchCollectionPalettes,
     fetchFilteredFavorites,
-    switchCollection
+    fetchAllCollectionsPalettes, // 添加新方法到返回值
+    switchCollection,
   }
 }

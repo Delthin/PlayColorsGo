@@ -1,36 +1,29 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch} from "vue";
 import Navbar from "../components/Navbar.vue";
 import PaletteList from "../components/PaletteList.vue";
 import { usePalettes } from "../composables/usePalettes";
 import { createCollection } from "../api/collections"; // 新增导入
-import { getUserInfo } from "../api/user"; 
+import { getUserInfo } from "../api/user"; // 新增导入
 
 
 const tags = ref<string[]>([]);
 const selectedCollection = ref('all');
-const { collections, fetchUserInfoAndCollections } = usePalettes();
+const { 
+  collections, 
+  fetchUserInfoAndCollections, 
+  fetchAllCollectionsPalettes,
+  switchCollection 
+} = usePalettes();
 const showDialog = ref(false); // 控制弹窗显示
 const newCollectionName = ref(''); // 新收藏夹名称
-const user = ref({ name: '' }); // 新增用户状态
 
-// 获取用户信息方法
-async function fetchUserData() {
-  try {
-    const res = await getUserInfo();
-    if (res.data.code === '000') {
-      user.value = { name: res.data.result.name };
-    }
-  } catch (error) {
-    console.error('Error fetching user info:', error);
-  }
-}
 
 // 创建收藏夹方法
 async function handleCreateCollection() {
   if (!newCollectionName.value) return;
   try {
-    await createCollection(newCollectionName.value, user.value.name);
+    await createCollection(newCollectionName.value, 'currentUser');
     await fetchUserInfoAndCollections();
     showDialog.value = false;
     newCollectionName.value = '';
@@ -51,13 +44,17 @@ async function fetchCollections() {
   }
 }
 
+watch(selectedCollection, async (newValue) => {
+  await switchCollection(newValue);
+});
+
 function updateTags(newTags: string[]) {
   tags.value = newTags;
 }
 
 onMounted(async () => {
-  await fetchUserData();
   await fetchUserInfoAndCollections();
+  await fetchAllCollectionsPalettes(); // 初始加载所有收藏夹的调色板
 });
 </script>
 
