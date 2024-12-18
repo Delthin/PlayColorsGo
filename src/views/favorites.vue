@@ -1,46 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted, watch} from "vue";
+import { ref, onMounted, watch } from "vue";
 import Navbar from "../components/Navbar.vue";
 import PaletteList from "../components/PaletteList.vue";
 import { usePalettes } from "../composables/usePalettes";
 import { createCollection } from "../api/collections"; // 新增导入
 import { getUserInfo } from "../api/user"; // 新增导入
-
+import { ElMessage } from 'element-plus'
 
 const tags = ref<string[]>([]);
 const selectedCollection = ref('all');
-const { 
-  collections, 
-  fetchUserInfoAndCollections, 
+const {
+  collections,
+  fetchUserInfoAndCollections,
   fetchAllCollectionsPalettes,
-  switchCollection 
+  switchCollection,
 } = usePalettes();
 const showDialog = ref(false); // 控制弹窗显示
 const newCollectionName = ref(''); // 新收藏夹名称
+const user = ref<{ name: string }>({ name: "" });
 
 
 // 创建收藏夹方法
 async function handleCreateCollection() {
-  if (!newCollectionName.value) return;
+  if (!newCollectionName.value) {
+    ElMessage.error('请输入收藏夹名称');
+    return;
+  }
+
+  if (!user.value.name) {
+    ElMessage.error('用户信息未加载');
+    return;
+  }
+
   try {
-    await createCollection(newCollectionName.value, 'currentUser');
+    await createCollection(newCollectionName.value, user.value.name);
     await fetchUserInfoAndCollections();
+    await fetchAllCollectionsPalettes();
     showDialog.value = false;
     newCollectionName.value = '';
+    ElMessage.success('收藏夹创建成功');
   } catch (error) {
     console.error('Error creating collection:', error);
+    ElMessage.error('创建收藏夹失败');
   }
 }
 
 async function fetchCollections() {
   try {
-    const res = await getUserInfo();
+    const res = await getUserInfo()
     if (res.data.code === '000') {
-      user.value = { name: res.data.result.name };
-      collections.value = ['all', ...res.data.result.paletteCollections.map((c: any) => c.name)];
+      user.value = { name: res.data.result.name }
+      collections.value = res.data.result.paletteCollections.map((c: any) => c.name)
     }
   } catch (error) {
-    console.error('Error fetching collections:', error);
+    console.error('Error fetching collections:', error)
   }
 }
 
@@ -53,23 +66,22 @@ function updateTags(newTags: string[]) {
 }
 
 onMounted(async () => {
+  await fetchCollections();
   await fetchUserInfoAndCollections();
   await fetchAllCollectionsPalettes(); // 初始加载所有收藏夹的调色板
 });
 </script>
 
 <template>
-  <Navbar @tags-update="updateTags"/>
+  <Navbar @tags-update="updateTags" />
   <div class="container">
     <h2>Favourites</h2>
     <p>Have a look at what you like</p>
-    
+
     <div class="collection-controls">
       <div class="collection-selector">
         <select v-model="selectedCollection">
-          <option v-for="collection in collections" 
-                  :key="collection" 
-                  :value="collection">
+          <option v-for="collection in collections" :key="collection" :value="collection">
             {{ collection === 'all' ? 'All Collections' : collection }}
           </option>
         </select>
@@ -82,11 +94,7 @@ onMounted(async () => {
   <div class="dialog-overlay" v-if="showDialog" @click="showDialog = false">
     <div class="dialog" @click.stop>
       <h3>Create New Collection</h3>
-      <input 
-        type="text" 
-        v-model="newCollectionName" 
-        placeholder="Enter collection name"
-      >
+      <input type="text" v-model="newCollectionName" placeholder="Enter collection name">
       <div class="dialog-buttons">
         <button @click="showDialog = false">Cancel</button>
         <button @click="handleCreateCollection" class="create">Create</button>
@@ -94,13 +102,7 @@ onMounted(async () => {
     </div>
   </div>
 
-  <PaletteList
-    layout="grid"
-    size="large"
-    :tags="tags"
-    mode="favorites"
-    :collection="selectedCollection"
-  />
+  <PaletteList layout="grid" size="large" :tags="tags" mode="favorites" :collection="selectedCollection" />
 </template>
 
 <style scoped>
@@ -110,7 +112,8 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -221,5 +224,4 @@ p {
 .dialog-buttons button:not(.create) {
   background-color: #f5f5f5;
 }
-
 </style>
