@@ -7,8 +7,9 @@ const props = defineProps<{
   paletteId: number
   colors: string[]
   isActive: boolean
-  size?: 'small' | 'medium' | 'large'  // 添加尺寸控制
+  size?: 'small' | 'medium' | 'large'
   fromFavorites?: boolean
+  name?: string
 }>();
 
 const notification = ref({
@@ -67,7 +68,7 @@ function openPalette() {
   console.log("on openPalette");
   router.push({
     name: 'Preview', // 使用命名路由
-    query: { 
+    query: {
       colors: palette
     }
   });
@@ -113,19 +114,17 @@ function copyColor(color: string) {
 
 <template>
   <div class="palette-container">
+    <div v-if="fromFavorites && name" class="palette-name">
+      {{ name }}
+    </div>
     <div class="palette" :class="[size || 'large']">
-      <div v-for="color in colors" 
-           :key="color" 
-           :style="{ 
-             backgroundColor: color,
-             flex: hoveredColor === color ? '2' : '1'
-           }" 
-           class="color-box"
-           @mouseenter="hoveredColor = color" 
-           @mouseleave="hoveredColor = ''"
-           @click="copyColor(color)">
+      <div v-for="color in colors" :key="color" :style="{
+        backgroundColor: color,
+        flex: hoveredColor === color ? '2' : '1'
+      }" class="color-box" @mouseenter="hoveredColor = color" @mouseleave="hoveredColor = ''"
+        @click="copyColor(color)">
         <div v-if="hoveredColor === color || copiedColor === color"
-             :class="['color-info', isLightColor(color) ? 'dark-text' : 'light-text']">
+          :class="['color-info', isLightColor(color) ? 'dark-text' : 'light-text']">
           <template v-if="copiedColor === color">
             <i class="fas fa-check"></i>
           </template>
@@ -136,15 +135,15 @@ function copyColor(color: string) {
       </div>
     </div>
     <div class="action-buttons">
-      <button v-if="!fromFavorites" class="action-button" @click="addToFavorites" >
+      <button v-if="!fromFavorites" class="action-button" @click="addToFavorites">
         <i class="fas fa-heart"></i>
         <span class="tooltip">Add to Favorites</span>
       </button>
-      <button class="action-button" @click="copyPalette" >
+      <button class="action-button" @click="copyPalette">
         <i class="fas fa-copy"></i>
         <span class="tooltip">Copy Palette</span>
       </button>
-      <button class="action-button" @click="openPalette" >
+      <button class="action-button" @click="openPalette">
         <i class="fas fa-eye"></i>
         <span class="tooltip">View Palette</span>
       </button>
@@ -154,14 +153,8 @@ function copyColor(color: string) {
       {{ notification.message }}
     </div>
   </div>
-  <SavePaletteModal
-    v-if="showSaveModal"
-    :show="showSaveModal"
-    :palette-id="paletteId"
-    :colors="colors"
-    @close="showSaveModal = false"
-    @save="handleSavePalette"
-  />
+  <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :palette-id="paletteId" :colors="colors"
+    @close="showSaveModal = false" @save="handleSavePalette" />
 </template>
 
 <style scoped>
@@ -171,6 +164,15 @@ function copyColor(color: string) {
   position: relative;
   padding-bottom: 40px;
   /* 为菜单按钮留出空间 */
+}
+
+.palette-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  text-align: left;
+  padding: 0 4px;
+  font-family: 'Arial', sans-serif;
 }
 
 .palette-wrapper {
@@ -267,6 +269,7 @@ function copyColor(color: string) {
     transform: translate(-50%, 20px);
     opacity: 0;
   }
+
   to {
     transform: translate(-50%, 0);
     opacity: 1;

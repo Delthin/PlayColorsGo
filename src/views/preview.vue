@@ -3,33 +3,49 @@ import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, watch } from 'vue';
 import Navbar from "../components/Navbar.vue";
 import ColorPicker from "../components/ColorPicker.vue";
+import { usePalettes } from "../composables/usePalettes";
+
 
 const route = useRoute();
 const router = useRouter();
 const colors = ref<string[]>([]);
+const { palettes, fetchPalettes } = usePalettes();
+
 
 function updateUrlColors(newColors: string[]) {
   router.replace({ query: { colors: newColors.join(',') } });
 }
 
-function getColorsFromUrl(): string[] {
+function getRandomPalette(): string[] {
+  if (palettes.value.length === 0) {
+    // 如果还没有加载调色板,返回默认颜色
+    return ['#FF0000', '#FFFF00', '#0000FF', '#00FF00', '#800080'];
+  }
+  // 随机选择一个调色板
+  const randomIndex = Math.floor(Math.random() * palettes.value.length);
+  return palettes.value[randomIndex].colors;
+}
+
+async function getColorsFromUrl(): Promise<string[]> {
   const colorQuery = route.query.colors as string;
   if (colorQuery) {
     return colorQuery.split(',');
   }
-  // Default colors if none are provided in the URL
-  return ['#FF0000', '#FFFF00', '#0000FF', '#00FF00', '#800080'];
+
+  // 如果URL中没有颜色,从API获取调色板
+  await fetchPalettes();
+  return getRandomPalette();
 }
 
-onMounted(() => {
-  colors.value = getColorsFromUrl();
+onMounted(async () => {
+  colors.value = await getColorsFromUrl();
 });
 
 watch(
-    () => route.query.colors,
-    () => {
-      colors.value = getColorsFromUrl();
-    }
+  () => route.query.colors,
+  async () => {
+    colors.value = await getColorsFromUrl();
+  }
 );
 
 function handleColorChange(newColors: string[]) {
@@ -44,11 +60,7 @@ function handleColorChange(newColors: string[]) {
     <h2>Palette Visualizer</h2>
     <p>Preview your colors on real designs for a better visual understanding.</p>
   </div>
-  <ColorPicker
-      v-model="colors"
-      :max-colors="10"
-      @change="handleColorChange"
-  />
+  <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
 </template>
 
 <style scoped>

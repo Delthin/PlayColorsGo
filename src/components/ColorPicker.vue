@@ -88,10 +88,6 @@ function toggleAdjustmentPanel() {
   }
 }
 
-// function mapRange (value: number, fromMin: number, fromMax: number, toMin: number, toMax: number) {
-//   return ((value - fromMin) / (fromMax - fromMin)) * (toMax - toMin) + toMin;
-// }
-
 function adjustColors() {
   const newColors = originalColors.value.map(originalColor => {
     let adjustedColor = originalColor.clone();
@@ -102,11 +98,11 @@ function adjustColors() {
     hsl.h = h < 0 ? 360 + h : h;
     adjustedColor = new TinyColor(hsl);
     adjustedColor = saturation.value > 0
-        ? adjustedColor.saturate(saturation.value)
-        : adjustedColor.desaturate(-saturation.value);
+      ? adjustedColor.saturate(saturation.value)
+      : adjustedColor.desaturate(-saturation.value);
     adjustedColor = brightness.value > 0
-        ? adjustedColor.lighten(brightness.value)
-        : adjustedColor.darken(-brightness.value);
+      ? adjustedColor.lighten(brightness.value)
+      : adjustedColor.darken(-brightness.value);
     // 调整色温
     // 有点难，不搞了
     // const rgb = adjustedColor.toRgb();
@@ -207,37 +203,20 @@ watch(() => props.modelValue, (newValue) => {
   <div class="color-strip">
     <div class="color-controls">
       <div class="palette">
-        <div
-            v-for="(color, index) in displayedColors"
-            :key="index"
-            class="color-box-wrapper"
-            draggable="true"
-            @dragstart.stop="handleDragStart(index, $event)"
-            @dragend="handleDragEnd($event)"
-            @dragover="handleDragOver(index, $event)"
-            @drop="handleDrop($event)"
-            :class="{
-              'dragging': index === draggedIndex,
-              'drag-over': index === dragOverIndex
-            }"
-        >
-          <div
-              class="color-box"
-              :style="{ backgroundColor: color }"
-              :class="{ 'selected': index === selectedColorIndex,
-                        'rounded-left': index === 0,
-                        'rounded-right': index === displayedColors.length - 1,}"
-              @click="() => {selectedColorIndex = index;}"
-          >
-            <el-color-picker
-                v-model="props.modelValue[index]"
-                @active-change="newColor => {
-                  updateColor(newColor, index);
-                }"
-                @blur="() => {selectedColorIndex = null;}"
-                :popper-class="'custom-color-picker'"
-                size="small"
-            />
+        <div v-for="(color, index) in displayedColors" :key="index" class="color-box-wrapper" draggable="true"
+          @dragstart.stop="handleDragStart(index, $event)" @dragend="handleDragEnd($event)"
+          @dragover="handleDragOver(index, $event)" @drop="handleDrop($event)" :class="{
+            'dragging': index === draggedIndex,
+            'drag-over': index === dragOverIndex
+          }">
+          <div class="color-box" :style="{ backgroundColor: color }" :class="{
+            'selected': index === selectedColorIndex,
+            'rounded-left': index === 0,
+            'rounded-right': index === displayedColors.length - 1,
+          }" @click="() => { selectedColorIndex = index; }">
+            <el-color-picker v-model="props.modelValue[index]" @active-change="newColor => {
+              updateColor(newColor, index);
+            }" @blur="() => { selectedColorIndex = null; }" :popper-class="'custom-color-picker'" size="small" />
           </div>
         </div>
       </div>
@@ -261,95 +240,33 @@ watch(() => props.modelValue, (newValue) => {
       </button>
     </div>
 
-    <div v-if="showAdjustmentPanel" class="adjustment-panel" >
+    <div v-if="showAdjustmentPanel" class="adjustment-panel">
       <div class="adjustment-slider">
         <label>Hue</label>
         <div class="slider-container">
-          <input
-              type="range"
-              id="hue-slider"
-              v-model="hue"
-              min="-180"
-              max="180"
-              @input="adjustColors"
-          >
-          <input
-              type="number"
-              v-model="hue"
-              min="-180"
-              max="180"
-              @input="adjustColors"
-          >
+          <input type="range" id="hue-slider" v-model="hue" min="-180" max="180" @input="adjustColors">
+          <input type="number" v-model="hue" min="-180" max="180" @input="adjustColors">
         </div>
       </div>
       <div class="adjustment-slider">
         <label>Saturation</label>
         <div class="slider-container">
-          <input
-              type="range"
-              id="saturation-slider"
-              v-model="saturation"
-              min="-100"
-              max="100"
-              @input="adjustColors"
-          >
-          <input
-              type="number"
-              v-model="saturation"
-              min="-100"
-              max="100"
-              @input="adjustColors"
-          >
+          <input type="range" id="saturation-slider" v-model="saturation" min="-100" max="100" @input="adjustColors">
+          <input type="number" v-model="saturation" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
       <div class="adjustment-slider">
         <label>Brightness</label>
         <div class="slider-container">
-          <input
-              type="range"
-              id="brightness-slider"
-              v-model="brightness"
-              min="-100"
-              max="100"
-              @input="adjustColors"
-          >
-          <input
-              type="number"
-              v-model="brightness"
-              min="-100"
-              max="100"
-              @input="adjustColors"
-          >
+          <input type="range" id="brightness-slider" v-model="brightness" min="-100" max="100" @input="adjustColors">
+          <input type="number" v-model="brightness" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
-<!--      <div class="adjustment-slider">-->
-<!--        <label>Temperature</label>-->
-<!--        <div class="slider-container">-->
-<!--          <input-->
-<!--              type="range"-->
-<!--              id="temperature-slider"-->
-<!--              v-model="temperature"-->
-<!--              min="-100"-->
-<!--              max="100"-->
-<!--              @input="adjustColors"-->
-<!--          >-->
-<!--          <input-->
-<!--              type="number"-->
-<!--              v-model="temperature"-->
-<!--              min="-100"-->
-<!--              max="100"-->
-<!--              @input="adjustColors"-->
-<!--          >-->
-<!--        </div>-->
-<!--      </div>-->
     </div>
-    <ColorLibrary 
-      v-model="showLibrary"
-      @select="colors => {
-        emit('update:modelValue', colors);
-        emit('change', colors);
-      }"
-    />
+    <ColorLibrary v-model="showLibrary" @select="colors => {
+      emit('update:modelValue', colors);
+      emit('change', colors);
+    }" />
   </div>
 </template>
 <style scoped>
@@ -371,7 +288,8 @@ watch(() => props.modelValue, (newValue) => {
   display: flex;
   align-items: center;
   flex: 1;
-  min-width: 0; /* 允许flex item缩小到比内容更小 */
+  min-width: 0;
+  /* 允许flex item缩小到比内容更小 */
 }
 
 .palette {
@@ -549,9 +467,8 @@ input[type="range"]::-webkit-slider-thumb {
 #brightness-slider {
   background: linear-gradient(to right, black, white);
 }
-
 </style>
 
 //#temperature-slider {
-//  background: linear-gradient(to right, #4000FF, white, #FF4000);
+// background: linear-gradient(to right, #4000FF, white, #FF4000);
 //}

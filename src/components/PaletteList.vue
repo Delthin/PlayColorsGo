@@ -11,12 +11,12 @@ const props = defineProps<{
   collection?: string
 }>();
 
-const { 
-  palettes, 
-  loading, 
+const {
+  palettes,
+  loading,
   favorites,
-  fetchPalettes, 
-  fetchFilteredFavorites, 
+  fetchPalettes,
+  fetchFilteredFavorites,
   fetchUserInfoAndCollections,
   switchCollection
 } = usePalettes()
@@ -53,15 +53,9 @@ watch(() => props.tags, async (newTags) => {
       <div class="loading">Loading...</div>
     </template>
     <template v-else>
-      <ColorPalette
-        v-for="palette in (mode === 'favorites' ? favorites : palettes)"
-        :key="palette.id"
-        :palette-id="palette.id"
-        :colors="palette.colors"
-        :size="size"
-        :is-active="false"
-        :from-favorites="mode === 'favorites'"
-      />
+      <ColorPalette v-for="palette in (mode === 'favorites' ? favorites : palettes)" :key="palette.id"
+        :palette-id="palette.id" :colors="palette.colors" :size="size" :is-active="false"
+        :from-favorites="mode === 'favorites'" :name="mode === 'favorites' ? palette.name : undefined" />
     </template>
   </div>
 </template>
