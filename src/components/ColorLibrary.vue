@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import ColorPalette from './ColorPalette.vue';
 import { axios } from '../utils/request';
 import { getUserInfo } from '../api/user';
 import { Plus } from 'lucide-vue-next';  // 添加图标
 import { useRoute } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
 import SearchBox from './SearchBox.vue';
-import {usePalettes} from "../composables/usePalettes.ts";
+import { usePalettes } from "../composables/usePalettes.ts";
 import SavePaletteModal from './SavePaletteModal.vue'
+import CollectionSelector from './CollectionSelector.vue';
 
+
+// 修改 usePalettes 的解构,添加 fetchFilteredFavorites
+const {
+    fetchUserInfoAndCollections,
+    favorites,
+    fetchAllCollectionsPalettes,
+    fetchFilteredFavorites  // 添加这个方法
+} = usePalettes();
 
 const showLibrary = ref(false);
 const activeTab = ref('library'); // 'library' or 'explore'
@@ -19,11 +27,9 @@ const palettes = ref<Array<{ id: number; name: string; colors: string[] }>>([]);
 const user = ref<{ name: string } | null>(null);
 const route = useRoute();
 const searchTags = ref<string[]>([]);
-
 const showSaveModal = ref(false)
-const selectedPalette = ref<{id: number, colors: string[]} | null>(null)
-
-
+const selectedPalette = ref<{ id: number, colors: string[] } | null>(null)
+const selectedCollection = ref('all');
 
 // 定义 props 和 emits
 const props = defineProps<{
@@ -31,6 +37,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue', 'select']);
+
 
 // 获取用户信息
 async function fetchUserInfo() {
@@ -73,13 +80,11 @@ function closeLibrary() {
     emit('update:modelValue', false);
 }
 
-const {fetchUserInfoAndFavorites, favorites} = usePalettes()
-
 // 组件挂载时加载数据
 onMounted(async () => {
-    // async fetchUserInfo();
-    // async fetchUserPalettes();
-  await fetchUserInfoAndFavorites()
+    await fetchUserInfoAndCollections();
+    // 如果需要获取收藏的调色板，还需要调用获取收藏的方法
+    await fetchAllCollectionsPalettes();
 });
 
 function handleOverlayClick(event: MouseEvent) {
@@ -115,9 +120,26 @@ function handleExploreSearch(query: string) {
     searchTags.value = query ? [query] : [];
 }
 
-function handleSearchClose() {
-    searchTags.value = [];
+
+// 修改 library 搜索处理函数
+async function handleLibrarySearch(query: string) {
+    searchTags.value = query ? [query] : [];
+    // 调用收藏夹搜索方法
+    if (user.value?.name) {
+        await fetchFilteredFavorites(searchTags.value);
+    }
 }
+
+// 修改搜索关闭处理函数
+async function handleSearchClose() {
+    searchTags.value = [];
+    // 重新加载所有收藏
+    await fetchAllCollectionsPalettes();
+}
+
+watch(selectedCollection, async (newValue) => {
+  await switchCollection(newValue);
+});
 
 </script>
 
@@ -146,21 +168,21 @@ function handleSearchClose() {
 
                 <!-- 根据activeTab显示不同内容 -->
                 <template v-if="activeTab === 'library'">
-                    <!-- 原有的library内容 -->
                     <div class="toolbar">
+                        <SearchBox placeholder="Search saved palettes..." @search="handleLibrarySearch"
+                            @close="handleSearchClose" />
                     </div>
+                    <div class="divider"></div>
 
+                    <div class="toolbar">
+                        <CollectionSelector v-model:selectedCollection="selectedCollection" />
+                    </div>
                     <div class="divider"></div>
 
                     <!-- 调色板列表 -->
-                    <div class="palettes-grid">
-                        <div v-for="palette in favorites" :key="palette.id" class="palette-item"
-                            @click="selectPalette(palette.colors)">
-                            <ColorPalette :paletteId="palette.id" :colors="palette.colors" :isActive="false"
-                                :fromFavorites="true" :size="'small'"/>
-                            <div class="palette-name">{{ palette.name || `Palette ${palette.id}` }}</div>
-                        </div>
-                    </div>
+                    <PaletteList layout="list" size="small" :tags="searchTags" mode="favorites"
+                        :collection="selectedCollection" />
+
                 </template>
 
                 <template v-else>
@@ -177,14 +199,8 @@ function handleSearchClose() {
             </div>
         </div>
     </div>
-    <SavePaletteModal
-        v-if="showSaveModal && selectedPalette"
-        :show="showSaveModal"
-        :palette-id="selectedPalette.id"
-        :colors="selectedPalette.colors"
-        @close="showSaveModal = false"
-        @save="handleSavePalette"
-    />
+    <SavePaletteModal v-if="showSaveModal && selectedPalette" :show="showSaveModal" :palette-id="selectedPalette.id"
+        :colors="selectedPalette.colors" @close="showSaveModal = false" @save="handleSavePalette" />
 </template>
 
 <style scoped>
@@ -194,8 +210,8 @@ function handleSearchClose() {
     left: 0;
     width: 100%;
     height: 100%;
-    /* background: rgba(0, 0, 0, 0.3); */
-    z-index: 999;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 1002;
 }
 
 .library-modal {
@@ -206,7 +222,7 @@ function handleSearchClose() {
     width: 400px;
     background: white;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    z-index: 1003;
 }
 
 .library-content {
@@ -274,7 +290,7 @@ function handleSearchClose() {
 }
 
 .toolbar {
-    padding: 15px 20px;
+    padding: 15px 10px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -302,20 +318,8 @@ select {
     padding: 12px;
 }
 
-.palette-name {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #666;
-}
-
 .explore-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.library-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
 }
 </style>

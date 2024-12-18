@@ -395,7 +395,7 @@ function openSignUpModal() {
   top: 86px;
   width: 100%;
   background: #ffffff;
-  z-index: 9999;
+  z-index: 1001;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

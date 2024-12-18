@@ -90,7 +90,7 @@ function handleSearch() {
 }
 
 @keyframes expand {
-  from { width: 36px; }
+  from { width: 30px; }
   to { width: 100%; }
 }
 </style>

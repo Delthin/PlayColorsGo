@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    CollectionSelector: typeof import('./src/components/CollectionSelector.vue')['default']
     ColorLibrary: typeof import('./src/components/ColorLibrary.vue')['default']
     ColorPalette: typeof import('./src/components/ColorPalette.vue')['default']
     ColorPicker: typeof import('./src/components/ColorPicker.vue')['default']
