@@ -2,9 +2,9 @@
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <button class="close-btn" @click="closeModal">✕</button>
-      <h2>Sign up</h2>
-      <p>Create an account with your username.</p>
-      <form @submit.prevent="handleSignUp">
+      <h2>Sign in</h2>
+      <p>Sign in with your username here.</p>
+      <form @submit.prevent="handleSignIn">
         <input
             type="text"
             placeholder="Username"
@@ -25,11 +25,11 @@
             <img src="../../public/eye.png"  style="width: 20px; height: 20px;"/>
           </span>
         </div>
-        <button type="submit" class="submit-btn">Create your free account</button>
+        <button type="submit" class="submit-btn">Sign in</button>
       </form>
       <p class="footer-links">
-        Already have an account?
-        <a href="#" @click.prevent="$emit('switchToSignIn')">Sign in</a>
+        Don't have an account?
+        <a href="#" @click.prevent="$emit('switchToSignUp')">Sign up</a>
       </p>
     </div>
   </div>
@@ -37,49 +37,41 @@
 
 <script setup lang="ts">
 import { ref, defineEmits } from "vue";
-import {register, login, getUserInfo} from "../api/user.ts";
+import { login, getUserInfo } from "../../api/user";
 
-const username = ref("");
-const password = ref("");
+const username = ref('');
+const password = ref('');
 const showPassword = ref(false);
 
-const emit = defineEmits(["close", "switchToSignIn", "signupSuccess"]);
+const emit = defineEmits(["close", "switchToSignUp", "loginSuccess"]);
 
-function handleSignUp() {
-  register({
+function handleSignIn() {
+  // Handle sign-in logic
+  login({
     name: username.value,
     password: password.value
   }).then(res => {
     if(res.data.code === '000') {
-      login({
-        name: username.value,
-        password: password.value
-      }).then(res => {
-        if(res.data.code === '000') {
-          const token = res.data.result
-          sessionStorage.setItem('token', token)
+      const token = res.data.result
+      sessionStorage.setItem('token', token)
 
-          getUserInfo().then(res => {
-            sessionStorage.setItem('user', res.data.result.name)
-          })
-          emit("signupSuccess", { name: username.value });
-          emit("close");
-          window.location.reload();
-        } else if (res.data.code === '400') {
-          console.log("login after sign up failed")
-          ElMessage({
-            message: res.data.msg,
-            type: 'error',
-            center: true,
-          })
-          username.value = ''
-          password.value = ''
-        }
+      getUserInfo().then(res => {
+        console.log("getting userInfo")
+        sessionStorage.setItem('name', res.data.result.name)
       })
-    } else if(res.data.code === '400') {
-      alert("Sign up failed!");
-      username.value = '';
-      password.value = '';
+      console.log(sessionStorage.getItem('name'))
+      emit("loginSuccess", { name: username.value });
+      console.log(username.value);
+      console.log("here!");
+      emit("close");
+      window.location.reload();
+    } else if (res.data.code === '400') {
+      ElMessage({
+        message: res.data.msg,
+        type: 'error',
+        center: true,
+      })
+      password.value = ''
     }
   })
 }
@@ -101,7 +93,7 @@ function closeModal() {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 9998;
 }
 
 /* Modal content */
@@ -115,6 +107,7 @@ function closeModal() {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   text-align: center;
+  z-index: 9999;
 }
 
 .close-btn {

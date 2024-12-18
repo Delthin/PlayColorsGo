@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Navbar from '../components/Navbar.vue';
-import PaletteList from '../components/PaletteList.vue';
+import Navbar from '../components/layout/Navbar.vue';
+import PaletteList from '../components/color/PaletteList.vue';
 import { ref } from "vue";
-import PageHeader from "../components/PageHeader.vue";
+import PageHeader from "../components/layout/PageHeader.vue";
 
 const tags = ref<string[]>([]);
 

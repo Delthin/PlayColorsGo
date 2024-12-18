@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from 'vue';
-import { router } from "../router";
-import { getUserInfo } from "../api/user.ts";
-import NotificationToast from './NotificationToast.vue'
+import { router } from "../../router/index.ts";
+import { getUserInfo } from "../../api/user.ts";
+import NotificationToast from '../common/NotificationToast.vue'
 
 const props = defineProps<{
   paletteId: number

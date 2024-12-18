@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from 'vue-router';
-import LoginModal from "./LoginModal.vue";
-import SignUpModal from "./SignUpModal.vue";
-import UserProfileDropDown from "./UserProfileDropDown.vue";
-import { getUserInfo } from "../api/user.ts";
+import LoginModal from "../auth/LoginModal.vue";
+import SignUpModal from "../auth/SignUpModal.vue";
+import UserProfileDropDown from "../auth/UserProfileDropDown.vue";
+import { getUserInfo } from "../../api/user.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -112,7 +112,7 @@ function openSignUpModal() {
             </span>
           </div>
           <span class="search-icon" v-if="tags.length === 0">
-            <img src="../../public/search.png" alt="search" />
+            <img src="../../../public/search.png" alt="search" />
           </span>
           <input
               type="text"
@@ -122,7 +122,7 @@ function openSignUpModal() {
               class="search-input"
           />
           <span class="close-icon" @click="adjustSearchModal">
-            <img src="../../public/close.png" alt="close" />
+            <img src="../../../public/close.png" alt="close" />
           </span>
         </div>
       </div>
@@ -223,7 +223,7 @@ function openSignUpModal() {
   width: 100%;
   background-color: #ffffff;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  z-index: 999;
+  z-index: 996;
 }
 
 .navbar-content {
@@ -395,7 +395,7 @@ function openSignUpModal() {
   top: 86px;
   width: 100%;
   background: #ffffff;
-  z-index: 1001;
+  z-index: 997;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

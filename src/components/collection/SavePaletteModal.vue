@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getUserInfo, addFavorite } from "../api/user"
-import NotificationToast from './NotificationToast.vue'
+import { getUserInfo, addFavorite } from "../../api/user"
+import NotificationToast from '../common/NotificationToast.vue'
 
 const props = defineProps<{
   show: boolean
@@ -128,5 +128,5 @@ onMounted(() => {
 </template>
 
 <style scoped>
-@import '../styles/modal.css';
+@import '../../styles/modal.css';
 </style>

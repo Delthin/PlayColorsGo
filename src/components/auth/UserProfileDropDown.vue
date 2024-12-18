@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
-import {getUserInfo} from "../api/user.ts";
+import {getUserInfo} from "../../api/user.ts";
 
 const router = useRouter();
 const user = ref<{ name: string } | null>(null);

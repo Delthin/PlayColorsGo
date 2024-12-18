@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { axios } from '../utils/request';
-import { getUserInfo } from '../api/user';
+import { axios } from '../../utils/request.ts';
+import { getUserInfo } from '../../api/user.ts';
 import { Plus } from 'lucide-vue-next';  // 添加图标
 import { useRoute } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
-import SearchBox from './SearchBox.vue';
-import { usePalettes } from "../composables/usePalettes.ts";
-import SavePaletteModal from './SavePaletteModal.vue'
-import CollectionSelector from './CollectionSelector.vue';
+import SearchBox from '../common/SearchBox.vue';
+import { usePalettes } from "../../composables/usePalettes.ts";
+import SavePaletteModal from '../collection/SavePaletteModal.vue'
+import CollectionSelector from '../collection/CollectionSelector.vue';
 
 
 // 修改 usePalettes 的解构,添加 fetchFilteredFavorites
@@ -211,7 +211,7 @@ watch(selectedCollection, async (newValue) => {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.1);
-    z-index: 1002;
+    z-index: 9999;
 }
 
 .library-modal {

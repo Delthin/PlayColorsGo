@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { createCollection } from "../api/collections";
-import { usePalettes } from "../composables/usePalettes";
-import { getUserInfo } from "../api/user";
-import NotificationToast from './NotificationToast.vue';
+import { createCollection } from "../../api/collections";
+import { usePalettes } from "../../composables/usePalettes";
+import { getUserInfo } from "../../api/user";
+import NotificationToast from '../common/NotificationToast.vue';
 
 const {
     collections,
@@ -121,7 +121,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import '../styles/modal.css';
+@import '../../styles/modal.css';
 
 .collection-controls {
     display: flex;

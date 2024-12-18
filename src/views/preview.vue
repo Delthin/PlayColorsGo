@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, watch } from 'vue';
-import Navbar from "../components/Navbar.vue";
-import ColorPicker from "../components/ColorPicker.vue";
+import Navbar from "../components/layout/Navbar.vue";
+import ColorPicker from "../components/color/ColorPicker.vue";
 import { usePalettes } from "../composables/usePalettes";
-import PageHeader from "../components/PageHeader.vue";
+import PageHeader from "../components/layout/PageHeader.vue";
 
 
 const route = useRoute();

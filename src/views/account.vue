@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import {login, getUserInfo, updateUserInfo} from "../api/user.ts";
-import UserProfileDropDown from "../components/UserProfileDropDown.vue";
+import UserProfileDropDown from "../components/auth/UserProfileDropDown.vue";
 import Navbar from "../components/Navbar.vue";
 
 const user = ref<{ name: string }>({ name: "" });

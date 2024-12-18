@@ -282,7 +282,7 @@ watch(() => props.modelValue, (newValue) => {
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   gap: 20px;
   height: 70px;
-  z-index: 999;
+  z-index: 997;
 }
 
 .color-controls {
@@ -410,6 +410,7 @@ watch(() => props.modelValue, (newValue) => {
   border-radius: 4px;
   padding: 15px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 997;
 }
 
 .adjustment-slider {

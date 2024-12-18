@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { usePalettes } from '../composables/usePalettes'
+import { usePalettes } from '../../composables/usePalettes'
 import ColorPalette from './ColorPalette.vue'
 
 const props = defineProps<{
