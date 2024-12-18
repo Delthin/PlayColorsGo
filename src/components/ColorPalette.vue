@@ -2,6 +2,7 @@
 import { defineProps, onMounted, ref } from 'vue';
 import { router } from "../router";
 import { getUserInfo } from "../api/user.ts";
+import NotificationToast from './NotificationToast.vue'
 
 const props = defineProps<{
   paletteId: number
@@ -148,10 +149,11 @@ function copyColor(color: string) {
         <span class="tooltip">View Palette</span>
       </button>
     </div>
-    <div class="notification" v-if="notification.show" :class="notification.type">
-      <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
-      {{ notification.message }}
-    </div>
+    <NotificationToast 
+      :show="notification.show"
+      :message="notification.message"
+      :type="notification.type"
+    />
   </div>
   <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :palette-id="paletteId" :colors="colors"
     @close="showSaveModal = false" @save="handleSavePalette" />

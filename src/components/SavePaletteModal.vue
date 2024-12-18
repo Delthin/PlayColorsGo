@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getUserInfo, addFavorite } from "../api/user"
-import { ElMessage } from 'element-plus'
+import NotificationToast from './NotificationToast.vue'
 
 const props = defineProps<{
   show: boolean
@@ -15,6 +15,22 @@ const collections = ref<string[]>([])
 const selectedCollection = ref('')
 const paletteName = ref('')
 const user = ref<{ name: string } | null>(null)
+const notification = ref({
+  show: false,
+  message: '',
+  type: 'success' as 'success' | 'error'
+});
+
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+  notification.value = {
+    show: true,
+    message,
+    type
+  };
+  setTimeout(() => {
+    notification.value.show = false;
+  }, 2000);
+}
 
 // 获取用户收藏夹列表
 async function fetchCollections() {
@@ -32,7 +48,7 @@ async function fetchCollections() {
 // 保存调色板
 async function handleSave() {
   if (!selectedCollection.value || !paletteName.value || !user.value?.name) {
-    ElMessage.error('请填写所有必填项并确保已登录')
+    showNotification('Please fill in all fields or log in', 'error');
     return
   }
   
@@ -44,22 +60,23 @@ async function handleSave() {
     )
     
     if (response.data.code === '000') {
-      ElMessage.success('添加成功')
       emit('save', {
         success: true,
-        message: '添加成功'
+        message: 'Saved successfully'
       })
       emit('close')
+      showNotification('Saved successfully', 'success');
     } else {
-      ElMessage.error(response.data.message || '添加失败')
+      const errorMsg = response.data.message || 'Failed to save'
+      showNotification(errorMsg, 'error')
       emit('save', {
         success: false,
-        message: response.data.message || '添加失败'
+        message: errorMsg
       })
     }
   } catch (error: any) {
-    const errorMsg = error.response?.data?.message || '添加失败'
-    ElMessage.error(errorMsg)
+    const errorMsg = error.response?.data?.message || 'Failed to save'
+    showNotification(errorMsg, 'error')
     emit('save', {
       success: false,
       message: errorMsg
@@ -102,6 +119,11 @@ onMounted(() => {
       </div>
       <button class="btn btn-primary" @click="handleSave">Save</button>
     </div>
+    <NotificationToast 
+      :show="notification.show"
+      :message="notification.message"
+      :type="notification.type"
+    />
   </div>
 </template>
 

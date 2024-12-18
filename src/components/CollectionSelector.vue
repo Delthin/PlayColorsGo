@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
 import { createCollection } from "../api/collections";
 import { usePalettes } from "../composables/usePalettes";
-import { getUserInfo } from "../api/user"; // 新增导入
+import { getUserInfo } from "../api/user";
+import NotificationToast from './NotificationToast.vue';
 
 const {
     collections,
@@ -20,6 +20,23 @@ const showDialog = ref(false);
 const newCollectionName = ref('');
 const user = ref<{ name: string }>({ name: "" });
 
+const notification = ref({
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+});
+
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+    notification.value = {
+        show: true,
+        message,
+        type
+    };
+    setTimeout(() => {
+        notification.value.show = false;
+    }, 2000);
+}
+
 async function fetchCollections() {
     try {
         const res = await getUserInfo()
@@ -34,12 +51,12 @@ async function fetchCollections() {
 
 async function handleCreateCollection() {
     if (!newCollectionName.value) {
-        ElMessage.error('Please enter a collection name');
+        showNotification('Please enter a collection name', 'error');
         return;
     }
 
     if (!user.value.name) {
-        ElMessage.error('Please log in to create a collection');
+        showNotification('Please log in to create a collection', 'error');
         return;
     }
 
@@ -49,10 +66,10 @@ async function handleCreateCollection() {
         await fetchAllCollectionsPalettes();
         showDialog.value = false;
         newCollectionName.value = '';
-        ElMessage.success('Collection created successfully');
+        showNotification('Collection created successfully', 'success');
     } catch (error) {
         console.error('Error creating collection:', error);
-        ElMessage.error('Failed to create collection');
+        showNotification('Failed to create collection', 'error');
     }
 }
 
@@ -100,6 +117,7 @@ onMounted(async () => {
             </button>
         </div>
     </div>
+    <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
 </template>
 
 <style scoped>
