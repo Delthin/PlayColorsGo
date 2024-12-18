@@ -223,7 +223,7 @@ function openSignUpModal() {
   width: 100%;
   background-color: #ffffff;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 999;
 }
 
 .navbar-content {

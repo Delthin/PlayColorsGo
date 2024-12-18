@@ -15,6 +15,7 @@ declare module 'vue' {
     ElContainer: typeof import('element-plus/es')['ElContainer']
     LoginModal: typeof import('./src/components/LoginModal.vue')['default']
     Navbar: typeof import('./src/components/Navbar.vue')['default']
+    PageHeader: typeof import('./src/components/PageHeader.vue')['default']
     PaletteList: typeof import('./src/components/PaletteList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

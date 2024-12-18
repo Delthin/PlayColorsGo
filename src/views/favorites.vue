@@ -3,7 +3,8 @@ import { ref, onMounted, watch } from "vue";
 import Navbar from "../components/Navbar.vue";
 import PaletteList from "../components/PaletteList.vue";
 import { usePalettes } from "../composables/usePalettes";
-import { getUserInfo } from "../api/user"; // 新增导入
+import { getUserInfo } from "../api/user"; 
+import PageHeader from "../components/PageHeader.vue";
 
 const tags = ref<string[]>([]);
 const selectedCollection = ref('all');
@@ -45,43 +46,49 @@ onMounted(async () => {
 
 <template>
   <Navbar @tags-update="updateTags" />
-  <div class="container">
-    <h2>Favourites</h2>
-    <p>Have a look at what you like</p>
-
-    <CollectionSelector v-model:selectedCollection="selectedCollection" />
+  <PageHeader 
+    title="Favourites"
+    subtitle="Have a look at what you like"
+  />
+  <div class="divider">
+    <div class="line"></div>
+    <div class="selector-container">
+      <CollectionSelector v-model:selectedCollection="selectedCollection" />
+    </div>
+    <div class="line"></div>
   </div>
-
+  
   <PaletteList layout="grid" size="large" :tags="tags" mode="favorites" :collection="selectedCollection" />
 </template>
 
 <style scoped>
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 2000px;
+  position: relative;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: #e0e0e0;
+  opacity: 0.6;
 }
 
-.container {
-  text-align: center;
-  margin-top: 250px;
-  margin-bottom: 80px;
+.selector-container {
+  padding: 0 20px;
+  min-width: 280px;
+  position: relative;
+  z-index: 1;
 }
 
-h2 {
-  font-size: 36px;
+/* 添加hover效果 */
+.selector-container:hover + .line,
+.line:has(+ .selector-container:hover) {
+  background-color: #d0d0d0;
+  transition: background-color 0.3s ease;
 }
-
-p {
-  color: #666;
-  font-size: 24px;
-}
-
 </style>
