@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Shuffle, Palette, BookmarkPlus, RefreshCcw } from 'lucide-vue-next';
 import ColorLibrary from './ColorLibrary.vue';
 import { TinyColor, random } from '@ctrl/tinycolor';
+import { usePalettes } from "../../composables/usePalettes";
 
 interface Props {
   modelValue: string[];
@@ -37,6 +38,13 @@ const dragOverIndex = ref<number | null>(null);
 
 // 添加状态
 const showLibrary = ref(false);
+
+const { palettes, fetchPalettes } = usePalettes();
+
+// 在组件初始化时加载调色板
+onMounted(async () => {
+  await fetchPalettes();
+});
 
 function updateColor(newColor: string, index: number) {
   const newColors = [...props.modelValue];
@@ -131,10 +139,22 @@ function loadFromFavorites() {
   showLibrary.value = true;
 }
 
-function generateNewPalette() {
-  const newColors = Array(displayCount.value).fill(0).map(() => generateRandomColor());
-  emit('update:modelValue', newColors);
-  emit('change', newColors);
+async function generateNewPalette() {
+  // 直接使用已加载的调色板数据
+  const matchingPalettes = palettes.value.filter(p => p.colors.length === displayCount.value);
+  
+  if (matchingPalettes.length > 0) {
+    // 如果找到匹配的调色板，随机选择一个
+    const randomIndex = Math.floor(Math.random() * matchingPalettes.length);
+    const selectedPalette = matchingPalettes[randomIndex].colors;
+    emit('update:modelValue', selectedPalette);
+    emit('change', selectedPalette);
+  } else {
+    // 如果没有找到匹配的调色板，使用随机生成
+    const newColors = Array(displayCount.value).fill(0).map(() => generateRandomColor());
+    emit('update:modelValue', newColors);
+    emit('change', newColors);
+  }
 }
 
 function generateRandomColor(): string {
