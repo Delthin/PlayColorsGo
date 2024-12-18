@@ -1,50 +1,46 @@
 import {axios} from '../utils/request'
-import {USER_MODULE} from "./_prefix";
-
-type LoginInfo = {
-    name: string,
-    password: string
-}
-
-type RegisterInfo = {
-    name: string,
-    password: string
-}
-
-type UpdateInfo = {
-    name?: string,
-    password?: string
-}
+import {USER_MODULE, API_MODULE} from './_prefix'
+import {UserVO} from './types'
 
 // 用户登录
-export const login = (loginInfo: LoginInfo) => {
-    return axios.post(`${USER_MODULE}/login`, null, {params: loginInfo})
-        .then(res => {
-            return res
-        })
+export const login = (name: string, password: string) => {
+    return axios.post(`${USER_MODULE}/login`, null, {
+        params: {name, password}
+    })
 }
 
 // 用户注册
-export const register = (registerInfo: RegisterInfo) => {
-    return axios.post(`${USER_MODULE}/register`, registerInfo,
-        {headers: {'Content-Type': 'application/json'}})
-        .then(res => {
-            return res
-        })
+export const register = (userVO: UserVO) => {
+    return axios.post(`${USER_MODULE}/register`, userVO)
 }
 
 // 获取用户信息
-export const userInfo = () => {
+export const getUserInfo = () => {
     return axios.get(`${USER_MODULE}`)
-        .then(res => {
-            return res
-        })
 }
 
 // 更新用户信息
-export const userInfoUpdate = (updateInfo: UpdateInfo) => {
-    return axios.post(`${USER_MODULE}`, updateInfo, {headers: {'Content-Type': 'application/json'}})
-        .then(res => {
-            return res
-        })
+export const updateUserInfo = (userVO: UserVO) => {
+    return axios.post(`${USER_MODULE}`, userVO)
+}
+
+// 获取特定收藏夹中的调色板
+export const getFavorites = (userName: string, collectionName: string) => {
+    return axios.post(`${API_MODULE}/getFavorites`, null, {
+        params: {userName, collectionName}
+    })
+}
+
+// 添加调色板到收藏夹
+export const addFavorite = (userName: string, paletteId: number, collectionName: string) => {
+    return axios.post(`${API_MODULE}/addFavorite`, null, {
+        params: {userName, paletteId, collectionName}
+    })
+}
+
+// 在收藏夹中搜索
+export const searchFavorites = (userName: string, tags: string[], collectionName: string) => {
+    return axios.post(`${API_MODULE}/searchFavorites`, null, {
+        params: {userName, tags, collectionName}
+    })
 }
