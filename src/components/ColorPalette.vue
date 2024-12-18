@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from 'vue';
 import { router } from "../router";
-import { axios } from '../utils/request';
-import { userInfo } from "../api/user.ts";
+import { getUserInfo } from "../api/user.ts";
 
 const props = defineProps<{
   paletteId: number
@@ -22,9 +21,10 @@ const notification = ref({
 const hoveredColor = ref('');
 const copiedColor = ref('');
 const user = ref<{ name: string } | null>(null);
+const showSaveModal = ref(false)
 
 async function fetchUserInfo() {
-  userInfo().then((res) => {
+  getUserInfo().then((res) => {
     if (res.data.code === '000') {
       console.log("fetchUserInfo!")
       user.value = { name: res.data.result.name };
@@ -76,22 +76,19 @@ function openPalette() {
 // 添加调色板到收藏
 async function addToFavorites() {
   if (user.value != null) {
-    const name = user.value.name;
-    const paletteId = props.paletteId;
-    const url = `/api/users/addFavorite?name=${encodeURIComponent(name)}&paletteId=${encodeURIComponent(paletteId)}`;
-    try {
-      const response = await axios.post(url, null);
-      if (response.data.code === "000") {
-        showNotification('Successfully added to favorites!', 'success');
-      } else {
-        showNotification('Failed to add to favorites', 'error');
-      }
-    } catch (error) {
-      showNotification('Error while adding to favorites', 'error');
-    }
+    showSaveModal.value = true
   } else {
-    showNotification('Please log in first!', 'error');
+    showNotification('Please log in first!', 'error')
   }
+}
+
+async function handleSavePalette(data: { success: boolean, message: string }) {
+  if (data.success) {
+    showNotification('成功添加到收藏夹!', 'success')
+  } else {
+    showNotification(data.message, 'error')
+  }
+  showSaveModal.value = false
 }
 
 function isLightColor(color: string): boolean {
@@ -161,6 +158,14 @@ function copyColor(color: string) {
       {{ notification.message }}
     </div>
   </div>
+  <SavePaletteModal
+    v-if="showSaveModal"
+    :show="showSaveModal"
+    :palette-id="paletteId"
+    :colors="colors"
+    @close="showSaveModal = false"
+    @save="handleSavePalette"
+  />
 </template>
 
 <style scoped>

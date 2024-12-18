@@ -17,6 +17,7 @@ declare module 'vue' {
     PaletteList: typeof import('./src/components/PaletteList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SavePaletteModal: typeof import('./src/components/SavePaletteModal.vue')['default']
     SearchBox: typeof import('./src/components/SearchBox.vue')['default']
     SignUpModal: typeof import('./src/components/SignUpModal.vue')['default']
     UserProfileDropDown: typeof import('./src/components/UserProfileDropDown.vue')['default']
