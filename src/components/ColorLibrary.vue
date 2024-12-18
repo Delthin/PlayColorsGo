@@ -139,13 +139,6 @@ function handleSearchClose() {
                 <template v-if="activeTab === 'library'">
                     <!-- 原有的library内容 -->
                     <div class="toolbar">
-<!--                        <select v-model="filterType">-->
-<!--                            <option value="all">All palettes</option>-->
-<!--                            <option value="recent">Recent</option>-->
-<!--                            <option value="favorite">Favorites</option>-->
-<!--                        </select>-->
-<!--                        <SearchBox placeholder="Search favorites..." @search="handleSearch"-->
-<!--                            @close="handleSearchClose" />-->
                     </div>
 
                     <div class="divider"></div>
@@ -206,7 +199,7 @@ function handleSearchClose() {
 }
 
 .header {
-    padding: 20px;
+    padding: 10px;
     text-align: center;
 }
 
@@ -215,7 +208,6 @@ function handleSearchClose() {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 0 10px;
 }
 
 .add-button {
@@ -237,10 +229,10 @@ function handleSearchClose() {
 
 .tabs {
     display: inline-flex;
-    gap: 20px;
-    background: #f5f5f5;
+    gap: 0px;
     padding: 4px;
     border-radius: 8px;
+    height: 40px;
 }
 
 .tabs button {
@@ -248,16 +240,14 @@ function handleSearchClose() {
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 18px;
     cursor: pointer;
-    color: #666;
+    color: grey;
 }
 
 .tabs button.active {
-    background: white;
     color: #333;
     font-weight: 500;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .divider {

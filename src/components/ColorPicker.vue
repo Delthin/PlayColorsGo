@@ -356,7 +356,6 @@ watch(() => props.modelValue, (newValue) => {
 .color-strip {
   position: fixed;
   bottom: 0;
-  left: 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -366,6 +365,7 @@ watch(() => props.modelValue, (newValue) => {
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   gap: 20px;
+  height: 70px;
 }
 
 .color-controls {
@@ -377,8 +377,8 @@ watch(() => props.modelValue, (newValue) => {
 
 .palette {
   display: flex;
-  height: 40px;
-  width: calc(600px);
+  height: 50px;
+  width: calc(400px);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -474,6 +474,8 @@ watch(() => props.modelValue, (newValue) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 50px;
+  width: 50px;
 }
 
 .tools button:hover {
@@ -483,7 +485,7 @@ watch(() => props.modelValue, (newValue) => {
 .adjustment-panel {
   position: absolute;
   bottom: 100%;
-  right: 80px;
+  right: 50px;
   width: 250px;
   background-color: white;
   border: 1px solid #ddd;
