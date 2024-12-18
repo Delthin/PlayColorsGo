@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref, defineEmits } from "vue";
-import { login, userInfo } from "../api/user";
+import { login, getUserInfo } from "../api/user";
 
 const username = ref('');
 const password = ref('');
@@ -55,7 +55,7 @@ function handleSignIn() {
       const token = res.data.result
       sessionStorage.setItem('token', token)
 
-      userInfo().then(res => {
+      getUserInfo().then(res => {
         console.log("getting userInfo")
         sessionStorage.setItem('name', res.data.result.name)
       })

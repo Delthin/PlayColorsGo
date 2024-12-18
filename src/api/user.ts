@@ -1,18 +1,25 @@
 import {axios} from '../utils/request'
 import {USER_MODULE, API_MODULE} from './_prefix'
-import {UserVO} from './types'
+import {UserVO, UserInfo} from './types'
 
 // 用户登录
-export const login = (name: string, password: string) => {
-    return axios.post(`${USER_MODULE}/login`, null, {
-        params: {name, password}
-    })
+export const login = (userInfo: UserInfo) => {
+    return axios.post(`${USER_MODULE}/login`, null, {params: userInfo})
+        .then(res => {
+            return res
+        })
 }
 
+
 // 用户注册
-export const register = (userVO: UserVO) => {
-    return axios.post(`${USER_MODULE}/register`, userVO)
+export const register = (userInfo: UserInfo) => {
+    return axios.post(`${USER_MODULE}/register`, userInfo,
+        {headers: {'Content-Type': 'application/json'}})
+        .then(res => {
+            return res
+        })
 }
+
 
 // 获取用户信息
 export const getUserInfo = () => {
@@ -20,9 +27,13 @@ export const getUserInfo = () => {
 }
 
 // 更新用户信息
-export const updateUserInfo = (userVO: UserVO) => {
-    return axios.post(`${USER_MODULE}`, userVO)
+export const updateUserInfo = (userInfo: UserInfo) => {
+    return axios.post(`${USER_MODULE}`, userInfo, {headers: {'Content-Type': 'application/json'}})
+        .then(res => {
+            return res
+        })
 }
+
 
 // 获取特定收藏夹中的调色板
 export const getFavorites = (userName: string, collectionName: string) => {

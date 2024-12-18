@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
-import {userInfo} from "../api/user.ts";
+import {getUserInfo} from "../api/user.ts";
 
 const router = useRouter();
 const user = ref<{ name: string } | null>(null);
@@ -11,7 +11,7 @@ const showMenu = ref(false);
 let hideMenuTimeout: number | null = null;
 
 async function fetchUserInfo() {
-  userInfo().then(res => {
+  getUserInfo().then(res => {
     if(res.data.code === '000') {
       console.log("fetchUserInfo!")
       user.value = {name: res.data.result.name};

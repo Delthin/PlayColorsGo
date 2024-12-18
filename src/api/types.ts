@@ -15,3 +15,8 @@ export type PaletteVO = {
     id?: number;
     colors: string[];
 }
+
+export type UserInfo = {   
+    name?: string;
+    password?: string;
+}

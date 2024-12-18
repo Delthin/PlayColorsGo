@@ -4,7 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import LoginModal from "./LoginModal.vue";
 import SignUpModal from "./SignUpModal.vue";
 import UserProfileDropDown from "./UserProfileDropDown.vue";
-import { userInfo } from "../api/user.ts";
+import { getUserInfo } from "../api/user.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -37,7 +37,7 @@ const topicsTags = ref<string[]>([
 
 async function fetchUserInfo() {
   try {
-    const res = await userInfo();
+    const res = await getUserInfo();
     if (res.data.code === '000') {
       console.log("fetchUserInfo!");
       user.value = { name: res.data.result.name };

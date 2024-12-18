@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue';
 import ColorPalette from './ColorPalette.vue';
 import { axios } from '../utils/request';
-import { userInfo } from '../api/user';
+import { getUserInfo } from '../api/user';
 import { Plus } from 'lucide-vue-next';  // 添加图标
 import { useRoute } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
@@ -31,7 +31,7 @@ const emit = defineEmits(['update:modelValue', 'select']);
 // 获取用户信息
 async function fetchUserInfo() {
     try {
-        const res = await userInfo();
+        const res = await getUserInfo();
         if (res.data.code === '000') {
             user.value = { name: res.data.result.name };
         }

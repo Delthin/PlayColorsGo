@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref, defineEmits } from "vue";
-import {register, login, userInfo} from "../api/user.ts";
+import {register, login, getUserInfo} from "../api/user.ts";
 
 const username = ref("");
 const password = ref("");
@@ -59,7 +59,7 @@ function handleSignUp() {
           const token = res.data.result
           sessionStorage.setItem('token', token)
 
-          userInfo().then(res => {
+          getUserInfo().then(res => {
             sessionStorage.setItem('user', res.data.result.name)
           })
           emit("signupSuccess", { name: username.value });

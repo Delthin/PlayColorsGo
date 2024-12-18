@@ -363,7 +363,6 @@ watch(() => props.modelValue, (newValue) => {
   background-color: #f8f8f8;
   padding: 10px 20px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   gap: 20px;
   height: 70px;
 }

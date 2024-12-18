@@ -1,6 +1,6 @@
 import { ref, Ref } from 'vue'
 import { axios } from '../utils/request'
-import {userInfo} from "../api/user.ts";
+import {getUserInfo} from "../api/user.ts";
 
 export interface Palette {
   id: number
@@ -17,7 +17,7 @@ export function usePalettes() {
   async function fetchUserInfoAndFavorites() {
     console.log("fetchUserInfoAndFavorites in favorites.vue_begin!");
     try {
-      const res = await userInfo();
+      const res = await getUserInfo();
       if (res.data.code === '000') {
         console.log("fetchUserInfo in favorites.vue!");
         user.value = { name: res.data.result.name };

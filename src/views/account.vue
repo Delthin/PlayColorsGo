@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import {login, userInfo, userInfoUpdate} from "../api/user.ts";
+import {login, getUserInfo, updateUserInfo} from "../api/user.ts";
 import UserProfileDropDown from "../components/UserProfileDropDown.vue";
 import Navbar from "../components/Navbar.vue";
 
@@ -8,7 +8,7 @@ const user = ref<{ name: string }>({ name: "" });
 const newPassword = ref("");
 
 async function fetchUserInfo() {
-  userInfo().then(res => {
+  getUserInfo().then(res => {
     if(res.data.code === '000') {
       console.log("fetchUserInfo!")
       user.value = {name: res.data.result.name};
@@ -28,7 +28,7 @@ async function updateUsername() {
     alert("Username cannot be empty!");
     return;
   }
-  userInfoUpdate({
+  updateUserInfo({
     name: user.value.name,
     password: undefined
   }).then(res => {
@@ -55,7 +55,7 @@ function updatePassword() {
     alert("Please fill in all password fields!");
     return;
   }
-  userInfoUpdate({
+  updateUserInfo({
     name: undefined,
     password: newPassword.value
   }).then(res => {
