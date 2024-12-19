@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import {login, getUserInfo, updateUserInfo} from "../api/user.ts";
 import UserProfileDropDown from "../components/auth/UserProfileDropDown.vue";
-import Navbar from "../components/Navbar.vue";
+import Navbar from '../components/layout/Navbar.vue';
 
 const user = ref<{ name: string }>({ name: "" });
 const newPassword = ref("");

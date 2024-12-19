@@ -46,10 +46,10 @@ async function fetchUserInfo() {
   try {
     const res = await getUserInfo();
     if (res.data.code === '000') {
-      console.log("fetchUserInfo!");
+      // console.log("fetchUserInfo!");
       user.value = {name: res.data.result.name};
-      console.log(user.value.name);
-      console.info('user', user.value);
+      // console.log(user.value.name);
+      // console.info('user', user.value);
     }
   } catch (error) {
     console.error("Error fetching user info:", error);
@@ -191,10 +191,14 @@ function openSignUpModal() {
       </div>
     </div>
 
-    <LoginModal v-if="showLoginModal" @close="showLoginModal = false" @loginSuccess="user = $event"
-                @switchToSignUp="openSignUpModal"/>
-    <SignUpModal v-if="showSignUpModal" @close="showSignUpModal = false" @signupSuccess="user = $event"
-                 @switchToSignIn="openLoginModal"/>
+    <div class="loginbtn">
+      <LoginModal v-if="showLoginModal" @close="showLoginModal = false" @loginSuccess="user = $event"
+                  @switchToSignUp="openSignUpModal"/>
+    </div>
+    <div class="signupbtn">
+      <SignUpModal v-if="showSignUpModal" @close="showSignUpModal = false" @signupSuccess="user = $event"
+                   @switchToSignIn="openLoginModal"/>
+    </div>
   </nav>
 </template>
 
@@ -214,7 +218,6 @@ function openSignUpModal() {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1.5px solid rgba(0, 0, 0, 0.08);
-
 }
 
 .navbar-left {
@@ -287,6 +290,7 @@ function openSignUpModal() {
   align-items: center;
   justify-content: flex-end;
   gap: 20px;
+  min-width: 200px; /* 确保足够的宽度 */
 }
 
 .nav-links {
@@ -294,6 +298,7 @@ function openSignUpModal() {
   gap: 20px;
   font-size: 18px;
   font-weight: bold;
+  white-space: nowrap; /* 防止文本换行 */
 }
 
 .nav-links span {
@@ -311,13 +316,19 @@ function openSignUpModal() {
 }
 
 .sep {
-  color: #666;
+  color: #e0e0e0;
 }
 
 .auth-buttons {
   display: flex;
+  justify-content: center;
   gap: 20px;
-  min-width: 100px;
+  min-width: 150px;
+  flex-shrink: 0; /* 防止缩小 */
+}
+
+.sign-in, .sign-up {
+  white-space: nowrap;
 }
 
 .sign-in {
@@ -399,7 +410,32 @@ function openSignUpModal() {
 .tag:hover {
   background: #e0e0e0;
 }
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .title-left {
+    font-size: 32px;
+  }
+
+  .nav-links {
+    gap: 15px;
+    font-size: 16px;
+  }
+
+  .auth-buttons {
+    gap: 15px;
+    min-width: 120px;
+  }
+
+  .sign-in, .sign-up {
+    font-size: 16px;
+    padding: 6px 12px;
+  }
+}
+
+
 </style>
+
 
 /* Responsive adjustments */
 //@media (max-width: 768px) {
