@@ -17,6 +17,9 @@ const magnifierScale = 2; // 放大倍数
 const selectedColorIndex = ref<number>(0);
 const hoveredColorIndex = ref<number | null>(null);
 
+const isMouseDown = ref(false);
+const activePointIndex = ref(-1);
+
 
 const exportOptions = [
     { label: 'Open in Generator', icon: 'fas fa-external-link-alt' },
@@ -24,6 +27,15 @@ const exportOptions = [
     { label: 'Quick View', icon: 'fas fa-eye' },
     { label: 'Save Palette', icon: 'fas fa-save' },
 ];
+
+function handleExport(option: string) {
+    switch (option) {
+        case 'Copy URL':
+            navigator.clipboard.writeText(window.location.href);
+            break;
+        // 添加其他导出选项处理...
+    }
+}
 
 // 处理图片上传
 function handleImageUpload(event: Event) {
@@ -106,17 +118,17 @@ function updateColors() {
     const scaleX = img.naturalWidth / rect.width;
     const scaleY = img.naturalHeight / rect.height;
 
-    // 同时更新 colors 和 colorPoints 的颜色
     colors.value = colorPoints.value.map((point, index) => {
-        const realX = Math.min(Math.floor(point.x * scaleX), img.naturalWidth - 1);
-        const realY = Math.min(Math.floor(point.y * scaleY), img.naturalHeight - 1);
+        // 计算实际采样点坐标 - 这里不需要加 centerOffset
+        const sampleX = Math.min(Math.floor(point.x * scaleX), img.naturalWidth - 1);
+        const sampleY = Math.min(Math.floor(point.y * scaleY), img.naturalHeight - 1);
 
-        const pixel = ctx.getImageData(realX, realY, 1, 1).data;
+        const pixel = ctx.getImageData(sampleX, sampleY, 1, 1).data;
         const color = `#${Array.from(pixel.slice(0, 3))
             .map(x => x.toString(16).padStart(2, '0'))
             .join('')}`;
 
-        // 更新 colorPoints 中对应点的颜色
+        // 更新 colorPoints
         colorPoints.value[index] = {
             ...point,
             color: color
@@ -126,80 +138,62 @@ function updateColors() {
     });
 }
 
-function handleMagnifier(event: MouseEvent) {
-    if (!isDragging.value || !imageElement.value) return;
-
-    const rect = imageElement.value.getBoundingClientRect();
-    const pointSize = draggedPointIndex.value === selectedColorIndex.value ? 28 : 20;
-    const offset = pointSize / 2;
-
-    // 使用取色点中心作为放大镜位置
-    const x = event.clientX - rect.left - offset;
-    const y = event.clientY - rect.top - offset;
-
-    magnifierPos.value = {
-        x: x + offset,
-        y: y + offset
-    };
-}
-
-function handleExport(option: string) {
-    switch (option) {
-        case 'Copy URL':
-            navigator.clipboard.writeText(window.location.href);
-            break;
-        // 添加其他导出选项处理...
-    }
-}
-
 // 处理取色点拖动
 function handlePointDragStart(event: MouseEvent, index: number) {
     event.preventDefault();
-    isDragging.value = true;
-    draggedPointIndex.value = index;
-    selectedColorIndex.value = index; // 同步选中状态
+    isMouseDown.value = true;
+    activePointIndex.value = index;
+    selectedColorIndex.value = index;
     showMagnifier.value = true;
-    handleMagnifier(event);
+
+    // 添加全局事件监听
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+
+    // 立即更新位置
+    updatePointPosition(event);
 }
 
-const throttledUpdateColors = throttle(updateColors, 100); // 限制颜色更新频率
-
-function handlePointDragMove(event: MouseEvent) {
-    if (!isDragging.value || !imageElement.value) return;
-
-    requestAnimationFrame(() => {
-        const rect = imageElement.value!.getBoundingClientRect();
-        const pointSize = draggedPointIndex.value === selectedColorIndex.value ? 28 : 20;
-        const offset = pointSize / 2;
-
-        // 计算中心点位置
-        const boundedX = Math.min(Math.max(0, event.clientX - rect.left - offset), rect.width - pointSize);
-        const boundedY = Math.min(Math.max(0, event.clientY - rect.top - offset), rect.height - pointSize);
-
-        if (draggedPointIndex.value !== -1) {
-            colorPoints.value[draggedPointIndex.value] = {
-                ...colorPoints.value[draggedPointIndex.value],
-                x: boundedX,
-                y: boundedY
-            };
-
-            // 更新放大镜位置，使用中心点坐标
-            magnifierPos.value = {
-                x: boundedX + offset,
-                y: boundedY + offset
-            };
-
-            throttledUpdateColors();
-        }
-    });
+function handleGlobalMouseMove(event: MouseEvent) {
+    if (!isMouseDown.value || !imageElement.value) return;
+    updatePointPosition(event);
 }
 
-function handlePointDragEnd() {
-    isDragging.value = false;
-    draggedPointIndex.value = -1;
+function handleGlobalMouseUp() {
+    isMouseDown.value = false;
+    activePointIndex.value = -1;
     showMagnifier.value = false;
-    // 拖动结束时更新一次颜色确保准确
+
+    // 移除全局事件监听
+    document.removeEventListener('mousemove', handleGlobalMouseMove);
+    document.removeEventListener('mouseup', handleGlobalMouseUp);
+
+    // 最后更新一次颜色
     updateColors();
+}
+
+function updatePointPosition(event: MouseEvent) {
+    if (!imageElement.value || activePointIndex.value === -1) return;
+
+    const rect = imageElement.value.getBoundingClientRect();
+    const pointSize = activePointIndex.value === selectedColorIndex.value ? 28 : 20;
+
+    // 计算相对位置并限制边界
+    const x = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
+    const y = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
+
+    // 更新点位置
+    colorPoints.value[activePointIndex.value] = {
+        ...colorPoints.value[activePointIndex.value],
+        x: x,
+        y: y
+    };
+
+    // 更新放大镜位置 - 使用相同的坐标
+    magnifierPos.value = { x, y };
+
+    // 使用 requestAnimationFrame 更新颜色
+    requestAnimationFrame(updateColors);
 }
 
 // 随机打乱取色点位置
@@ -207,16 +201,6 @@ function shufflePoints() {
     if (!imageElement.value) return;
     initializeColorPoints(colorPoints.value.length, false);
 }
-
-// 监听颜色变化
-function handleColorsChange(newColors: string[]) {
-    colors.value = newColors;
-    // 如果颜色数量变化，更新取色点
-    if (newColors.length !== colorPoints.value.length) {
-        initializeColorPoints(newColors.length);
-    }
-}
-
 
 function selectColor(index: number) {
     selectedColorIndex.value = index;
@@ -228,17 +212,6 @@ function isLightColor(color: string): boolean {
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
     return (r * 0.299 + g * 0.587 + b * 0.114) > 128;
-}
-
-function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
-    let inThrottle: boolean;
-    return function (this: any, ...args: Parameters<T>) {
-        if (!inThrottle) {
-            func.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
-    };
 }
 
 </script>
@@ -295,29 +268,24 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (.
 
                 <div class="image-container" v-else>
                     <img :src="imageUrl" ref="imageElement" @load="initializeColorPoints(DEFAULT_POINTS_COUNT)"
-                        @mousedown.prevent @mousemove="handlePointDragMove" @mouseup="handlePointDragEnd"
-                        @mouseleave="handlePointDragEnd" />
+                        draggable="false" />
 
                     <!-- 放大镜 -->
                     <div v-if="showMagnifier" class="magnifier" :style="{
                         left: `${magnifierPos.x}px`,
                         top: `${magnifierPos.y}px`,
                         backgroundImage: `url(${imageUrl})`,
-                        backgroundPosition: `-${(magnifierPos.x - 50) * magnifierScale}px -${(magnifierPos.y - 50) * magnifierScale}px`,
+                        backgroundPosition: `-${(magnifierPos.x * magnifierScale - 50)}px -${(magnifierPos.y * magnifierScale - 50)}px`,
                         backgroundSize: `${imageElement?.width * magnifierScale}px ${imageElement?.height * magnifierScale}px`
                     }">
                     </div>
-<div v-for="(point, index) in colorPoints" 
-     :key="index" 
-     class="color-point"
-     :class="{ 'selected': index === selectedColorIndex }" 
-     :style="{
-         left: `${point.x}px`,
-         top: `${point.y}px`,
-         backgroundColor: point.color
-     }" 
-     @mousedown="handlePointDragStart($event, index)">
-</div>
+                    <div v-for="(point, index) in colorPoints" :key="index" class="color-point"
+                        :class="{ 'selected': index === selectedColorIndex }" :style="{
+                            left: `${point.x}px`,
+                            top: `${point.y}px`,
+                            backgroundColor: point.color
+                        }" @mousedown="handlePointDragStart($event, index)">
+                    </div>
 
                     <div class="image-controls">
                         <button @click="shufflePoints" class="control-button">
@@ -498,16 +466,25 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (.
     position: relative;
     max-width: 100%;
     max-height: 600px;
-    display: inline-block; /* 添加这行 */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* 当放大镜显示时隐藏鼠标 */
+.image-container:has(.magnifier) {
+    cursor: none !important;
 }
 
 .image-container img {
     max-width: 100%;
     max-height: 600px;
     object-fit: contain;
-    user-select: none;
+    pointer-events: none;
     -webkit-user-drag: none;
-    display: block; /* 添加这行 */
+    user-select: none;
 }
 
 .color-point {
@@ -517,16 +494,17 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (.
     border-radius: 50%;
     border: 3px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    cursor: none;
-    /* 隐藏鼠标 */
-    transform-origin: center;
+    cursor: grab;
     will-change: transform;
     backface-visibility: hidden;
     /* GPU加速 */
-    transform: translate3d(0, 0, 0);
-    /* GPU加速 */
+    transform: translate(-50%, -50%);  /* 居中对齐 */
     touch-action: none;
-    transition: width 0.3s ease, height 0.3s ease, border-width 0.3s ease;
+    z-index: 1;
+}
+
+.color-point:active {
+    cursor: grabbing;
 }
 
 .color-point.selected {
@@ -642,8 +620,10 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (.
     pointer-events: none;
     z-index: 100;
     background-repeat: no-repeat;
-    transform: translate(-50%, -50%);
     cursor: none;
+    will-change: transform;
+    transform: translate3d(-50%, -50%, 0);
+
 }
 
 .magnifier::after {
