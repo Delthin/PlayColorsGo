@@ -323,7 +323,6 @@ function openSignUpModal() {
   display: flex;
   justify-content: center;
   gap: 20px;
-  min-width: 150px;
   flex-shrink: 0; /* 防止缩小 */
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" @click.self="closeModal">
+  <div class="modal-overlay">
     <div class="modal-content">
       <button class="close-btn" @click="closeModal">✕</button>
       <h2>Sign up</h2>
@@ -22,7 +22,7 @@
               class="toggle-password"
               @click="showPassword = !showPassword"
           >
-            <img src="../../public/eye.png"  style="width: 20px; height: 20px;"/>
+            <img src="../../../public/eye.png"  style="width: 20px; height: 20px;"/>
           </span>
         </div>
         <button type="submit" class="submit-btn">Create your free account</button>
