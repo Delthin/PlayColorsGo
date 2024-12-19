@@ -11,6 +11,7 @@ declare module 'vue' {
     ColorLibrary: typeof import('./src/components/color/ColorLibrary.vue')['default']
     ColorPalette: typeof import('./src/components/color/ColorPalette.vue')['default']
     ColorPicker: typeof import('./src/components/color/ColorPicker.vue')['default']
+    DeleteConfirmModal: typeof import('./src/components/common/DeleteConfirmModal.vue')['default']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     LoginModal: typeof import('./src/components/auth/LoginModal.vue')['default']

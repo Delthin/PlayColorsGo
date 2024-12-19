@@ -45,6 +45,12 @@ watch(() => props.tags, async (newTags) => {
     await fetchPalettes(newTags)
   }
 }, { deep: true })
+
+const reloadPalettes = async () => {
+  if (props.mode === 'favorites' && props.collection) {
+    await switchCollection(props.collection)
+  }
+}
 </script>
 
 <template>
@@ -53,9 +59,18 @@ watch(() => props.tags, async (newTags) => {
       <div class="loading">Loading...</div>
     </template>
     <template v-else>
-      <ColorPalette v-for="palette in (mode === 'favorites' ? favorites : palettes)" :key="palette.id"
-        :palette-id="palette.id" :colors="palette.colors" :size="size" :is-active="false"
-        :from-favorites="mode === 'favorites'" :name="mode === 'favorites' ? palette.name : undefined" />
+      <ColorPalette 
+        v-for="palette in (mode === 'favorites' ? favorites : palettes)" 
+        :key="palette.id"
+        :palette-id="palette.id" 
+        :colors="palette.colors" 
+        :size="size" 
+        :is-active="false"
+        :from-favorites="mode === 'favorites'"
+        :name="mode === 'favorites' ? palette.name : undefined"
+        :collection="palette.collection"
+        @delete="reloadPalettes"
+      />
     </template>
   </div>
 </template>

@@ -55,3 +55,10 @@ export const searchFavorites = (userName: string, tags: string[], collectionName
         params: {userName, tags, collectionName}
     })
 }
+
+// 删除收藏夹中的调色板
+export const deleteFavorite = (userName: string, paletteName: string, collectionName: string) => {
+    return axios.post(`${USER_MODULE}/deleteFavorite`, null, {
+        params: { userName, paletteName, collectionName }
+    });
+}

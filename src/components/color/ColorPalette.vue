@@ -3,6 +3,8 @@ import { defineProps, onMounted, ref } from 'vue';
 import { router } from "../../router/index.ts";
 import { getUserInfo } from "../../api/user.ts";
 import NotificationToast from '../common/NotificationToast.vue'
+import { deleteFavorite } from "../../api/user.ts";
+import DeleteConfirmModal from '../common/DeleteConfirmModal.vue'
 
 const props = defineProps<{
   paletteId: number
@@ -11,7 +13,8 @@ const props = defineProps<{
   size?: 'small' | 'medium' | 'large'
   fromFavorites?: boolean
   name?: string
-}>();
+  collection?: string // 添加 collection prop
+}>()
 
 const notification = ref({
   show: false,
@@ -24,6 +27,7 @@ const hoveredColor = ref('');
 const copiedColor = ref('');
 const user = ref<{ name: string } | null>(null);
 const showSaveModal = ref(false)
+const showDeleteConfirm = ref(false);
 
 async function fetchUserInfo() {
   getUserInfo().then((res) => {
@@ -111,6 +115,43 @@ function copyColor(color: string) {
     copiedColor.value = '';
   }, 2000);
 }
+// 删除调色板
+async function handleDelete() {
+  if (!user.value || !props.name) return;
+  
+  if (!props.collection) {
+    showNotification('Cannot delete: collection not specified', 'error');
+    return;
+  }
+
+  try {
+    const response = await deleteFavorite(
+      user.value.name,
+      props.name,
+      props.collection
+    );
+
+    if (response.data.code === '000') {
+      // 立即关闭确认对话框
+      showDeleteConfirm.value = false;
+      // 显示成功通知
+      showNotification('Palette successfully deleted', 'success');
+      // 延迟触发删除事件
+      setTimeout(() => {
+        emit('delete');
+      }, 1000);
+    } else {
+      showNotification('Failed to delete palette', 'error');
+      showDeleteConfirm.value = false;
+    }
+  } catch (error) {
+    showNotification('Error deleting palette', 'error');
+    showDeleteConfirm.value = false;
+  }
+}
+
+const emit = defineEmits(['delete']);
+
 </script>
 
 <template>
@@ -141,6 +182,10 @@ function copyColor(color: string) {
           <i class="fas fa-heart"></i>
           <span class="tooltip">Add to Favorites</span>
         </button>
+        <button v-if="fromFavorites" class="action-button delete-button" @click="showDeleteConfirm = true">
+          <i class="fas fa-trash"></i>
+          <span class="tooltip">Delete from Favorites</span>
+        </button>
         <button class="action-button" @click="copyPalette">
           <i class="fas fa-copy"></i>
           <span class="tooltip">Copy Palette</span>
@@ -151,10 +196,13 @@ function copyColor(color: string) {
         </button>
       </div>
     </div>
-    <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
   </div>
-  <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :colors="colors"
-    @close="showSaveModal = false" @save="handleSavePalette" />
+  <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
+  <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :colors="colors" @close="showSaveModal = false"
+    @save="handleSavePalette" />
+  <DeleteConfirmModal v-if="showDeleteConfirm" :show="showDeleteConfirm" title="Delete Palette"
+    message="Are you sure you want to delete this palette?" @confirm="handleDelete"
+    @cancel="showDeleteConfirm = false" />
 </template>
 
 <style scoped>
@@ -373,5 +421,61 @@ function copyColor(color: string) {
   border-width: 5px;
   border-style: solid;
   border-color: #333 transparent transparent transparent;
+}
+
+.delete-button:hover {
+  color: #dc3545;
+}
+
+.delete-confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.modal-content h3 {
+  margin: 0 0 16px 0;
+  color: #2c3e50;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-buttons button:not(.delete) {
+  background: #e0e0e0;
+}
+
+.modal-buttons .delete {
+  background: #dc3545;
+  color: white;
+}
+
+.modal-buttons .delete:hover {
+  background: #c82333;
 }
 </style>

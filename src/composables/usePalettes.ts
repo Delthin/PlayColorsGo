@@ -6,6 +6,7 @@ export interface Palette {
   id: number
   colors: string[]
   name?: string
+  collection?: string
 }
 
 export interface Collection {
@@ -61,15 +62,12 @@ export function usePalettes() {
     
     try {
       loading.value = true;
-      // 1. 获取用户信息和收藏夹列表
       const userInfoRes = await getUserInfo();
       if (userInfoRes.data.code === '000') {
         user.value = { name: userInfoRes.data.result.name };
-        // 获取除'all'之外的所有收藏夹
         const userCollections = userInfoRes.data.result.paletteCollections.map((c: any) => c.name);
         collections.value = ['all', ...userCollections];
         
-        // 2. 获取每个收藏夹的调色板
         const allPalettes: Palette[] = [];
         for (const collection of userCollections) {
           const response = await getFavorites(user.value.name, collection);
@@ -77,13 +75,13 @@ export function usePalettes() {
             const palettes = response.data.result.map((palette: any) => ({
               id: palette.id,
               colors: palette.colors,
-              name: palette.name
+              name: palette.name,
+              collection: collection // 添加 collection 信息
             }));
             allPalettes.push(...palettes);
           }
         }
         
-        // 3. 去重并更新 favorites
         const uniquePalettes = Array.from(
           new Map(allPalettes.map(palette => [palette.id, palette])).values()
         );
@@ -152,12 +150,38 @@ export function usePalettes() {
     }
   }
 
-  async function switchCollection(collectionName: string) {
-    currentCollection.value = collectionName;
+  const fetchPalettesForCollection = async (collectionName: string) => {
+    try {
+      const response = await getFavorites(user.value?.name || '', collectionName);
+      if (response.data.code === '000') {
+        // 为每个 palette 添加所属的 collection 信息
+        return response.data.result.map((palette: any) => ({
+          id: palette.id,
+          colors: palette.colors,
+          name: palette.name,
+          collection: collectionName // 添加 collection 信息
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  const switchCollection = async (collectionName: string) => {
     if (collectionName === 'all') {
-      await fetchAllCollectionsPalettes();
+      const allPalettes: Palette[] = [];
+      for (const collection of collections.value) {
+        if (collection !== 'all') {
+          const palettes = await fetchPalettesForCollection(collection);
+          allPalettes.push(...palettes);
+        }
+      }
+      favorites.value = allPalettes;
     } else {
-      await fetchCollectionPalettes(collectionName);
+      const palettes = await fetchPalettesForCollection(collectionName);
+      favorites.value = palettes;
     }
   }
 
