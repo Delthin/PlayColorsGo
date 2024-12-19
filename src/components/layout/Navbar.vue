@@ -73,10 +73,16 @@ onUnmounted(() => {
   document.removeEventListener('click', onOutsideClick);
 });
 
-function addTag(tag: string) {
+function addTagFromRecommendation(tag: string) {
   if (tag.trim() !== '' && !tags.value.includes(tag)) {
     tags.value.push(tag.trim());
-    console.log(tag.trim());
+    emit("tags-update", tags.value);
+  }
+}
+
+function addTagFromInput() {
+  if (inputTag.value.trim() !== '' && !tags.value.includes(inputTag.value.trim())) {
+    tags.value.push(inputTag.value.trim());
     inputTag.value = '';
     emit("tags-update", tags.value);
   }
@@ -90,7 +96,7 @@ function removeTag(tag: string) {
 
 function handleKeyPress(event: KeyboardEvent) {
   if (event.key === 'Enter' && inputTag.value.trim() !== '') {
-    addTag(inputTag.value.trim());
+    addTagFromInput();
   }
 }
 
@@ -166,7 +172,7 @@ function openSignUpModal() {
           <div>
             <h3>Colors</h3>
             <div class="tags-container">
-              <div class="tag" v-for="tag in colorsTags" :key="tag" @click="addTag(tag)">
+              <div class="tag" v-for="tag in colorsTags" :key="tag" @click="addTagFromRecommendation(tag)">
                 {{ tag }}
               </div>
             </div>
@@ -174,7 +180,7 @@ function openSignUpModal() {
           <div>
             <h3>Styles</h3>
             <div class="tags-container">
-              <div class="tag" v-for="tag in stylesTags" :key="tag" @click="addTag(tag)">
+              <div class="tag" v-for="tag in stylesTags" :key="tag" @click="addTagFromRecommendation(tag)">
                 {{ tag }}
               </div>
             </div>
@@ -182,7 +188,7 @@ function openSignUpModal() {
           <div>
             <h3>Topics</h3>
             <div class="tags-container">
-              <div class="tag" v-for="tag in topicsTags" :key="tag" @click="addTag(tag)">
+              <div class="tag" v-for="tag in topicsTags" :key="tag" @click="addTagFromRecommendation(tag)">
                 {{ tag }}
               </div>
             </div>
