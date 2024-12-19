@@ -22,7 +22,7 @@
               class="toggle-password"
               @click="showPassword = !showPassword"
           >
-            <img src="../../public/eye.png"  style="width: 20px; height: 20px;"/>
+            <img src="../../../public/eye.png"  style="width: 20px; height: 20px;"/>
           </span>
         </div>
         <button type="submit" class="submit-btn">Sign in</button>

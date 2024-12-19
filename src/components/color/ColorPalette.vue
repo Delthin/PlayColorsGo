@@ -115,9 +115,6 @@ function copyColor(color: string) {
 
 <template>
   <div class="palette-container">
-    <div v-if="fromFavorites && name" class="palette-name">
-      {{ name }}
-    </div>
     <div class="palette" :class="[size || 'large']">
       <div v-for="color in colors" :key="color" :style="{
         backgroundColor: color,
@@ -135,27 +132,28 @@ function copyColor(color: string) {
         </div>
       </div>
     </div>
-    <div class="action-buttons">
-      <button v-if="!fromFavorites" class="action-button" @click="addToFavorites">
-        <i class="fas fa-heart"></i>
-        <span class="tooltip">Add to Favorites</span>
-      </button>
-      <button class="action-button" @click="copyPalette">
-        <i class="fas fa-copy"></i>
-        <span class="tooltip">Copy Palette</span>
-      </button>
-      <button class="action-button" @click="openPalette">
-        <i class="fas fa-eye"></i>
-        <span class="tooltip">View Palette</span>
-      </button>
+    <div class="action-container">
+      <div v-if="fromFavorites && name" class="palette-name">
+        {{ name }}
+      </div>
+      <div class="action-buttons">
+        <button v-if="!fromFavorites" class="action-button" @click="addToFavorites">
+          <i class="fas fa-heart"></i>
+          <span class="tooltip">Add to Favorites</span>
+        </button>
+        <button class="action-button" @click="copyPalette">
+          <i class="fas fa-copy"></i>
+          <span class="tooltip">Copy Palette</span>
+        </button>
+        <button class="action-button" @click="openPalette">
+          <i class="fas fa-eye"></i>
+          <span class="tooltip">View Palette</span>
+        </button>
+      </div>
     </div>
-    <NotificationToast 
-      :show="notification.show"
-      :message="notification.message"
-      :type="notification.type"
-    />
+    <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
   </div>
-  <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :palette-id="paletteId" :colors="colors"
+  <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :colors="colors"
     @close="showSaveModal = false" @save="handleSavePalette" />
 </template>
 
@@ -169,12 +167,16 @@ function copyColor(color: string) {
 }
 
 .palette-name {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  text-align: left;
-  padding: 0 4px;
+  font-size: 16px;
+  color: #2c3e50;
   font-family: 'Arial', sans-serif;
+  font-weight: 600;
+  padding: 0px 12px;
+  margin-left: 4px;
+  line-height: 20px;
+  height: 36px;
+  display: flex;
+  align-items: center;
 }
 
 .palette-wrapper {
@@ -292,6 +294,19 @@ function copyColor(color: string) {
 
 .fa-check {
   font-size: 1.2em;
+}
+
+.action-container {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px;
+  gap: 8px;
+  z-index: 5;
 }
 
 .action-buttons {

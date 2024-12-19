@@ -5,7 +5,7 @@ import NotificationToast from '../common/NotificationToast.vue'
 
 const props = defineProps<{
   show: boolean
-  paletteId: number
+  // paletteId: number
   colors: string[]
 }>()
 
@@ -47,8 +47,12 @@ async function fetchCollections() {
 
 // 保存调色板
 async function handleSave() {
-  if (!selectedCollection.value || !paletteName.value || !user.value?.name) {
-    showNotification('Please fill in all fields or log in', 'error');
+  if (!user.value?.name) {
+    showNotification('Please log in to save', 'error');
+    return
+  }
+  if (!selectedCollection.value || !paletteName.value) {
+    showNotification('Please fill in all fields', 'error');
     return
   }
   

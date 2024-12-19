@@ -1,35 +1,31 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { axios } from '../../utils/request.ts';
-import { getUserInfo } from '../../api/user.ts';
+import { ref, onMounted } from 'vue';
 import { Plus } from 'lucide-vue-next';  // 添加图标
-import { useRoute } from 'vue-router';   // 添加路由
+import { useRoute, useRouter } from 'vue-router';   // 添加路由
 import PaletteList from './PaletteList.vue';
 import SearchBox from '../common/SearchBox.vue';
 import { usePalettes } from "../../composables/usePalettes.ts";
 import SavePaletteModal from '../collection/SavePaletteModal.vue'
 import CollectionSelector from '../collection/CollectionSelector.vue';
-
+import NotificationToast from '../common/NotificationToast.vue';
+import { getUserInfo } from '../../api/user.ts';
 
 // 修改 usePalettes 的解构,添加 fetchFilteredFavorites
 const {
     fetchUserInfoAndCollections,
-    favorites,
     fetchAllCollectionsPalettes,
     fetchFilteredFavorites  // 添加这个方法
 } = usePalettes();
 
-const showLibrary = ref(false);
 const activeTab = ref('library'); // 'library' or 'explore'
-const searchQuery = ref('');
-const filterType = ref('all');
-const palettes = ref<Array<{ id: number; name: string; colors: string[] }>>([]);
 const user = ref<{ name: string } | null>(null);
 const route = useRoute();
 const searchTags = ref<string[]>([]);
 const showSaveModal = ref(false)
-const selectedPalette = ref<{ id: number, colors: string[] } | null>(null)
+const selectedPalette = ref<{ id?: number, colors: string[] } | null>(null)
 const selectedCollection = ref('all');
+const router = useRouter();
+
 
 // 定义 props 和 emits
 const props = defineProps<{
@@ -37,9 +33,31 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue', 'select']);
+const notification = ref({
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+});
 
+// 添加通知函数
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+    notification.value = {
+        show: true,
+        message,
+        type
+    };
+    setTimeout(() => {
+        notification.value.show = false;
+    }, 2000);
+}
 
-// 获取用户信息
+// 组件挂载时加载数据
+onMounted(async () => {
+    await fetchUserInfo();
+    await fetchUserInfoAndCollections();
+    await fetchAllCollectionsPalettes();
+});
+
 async function fetchUserInfo() {
     try {
         const res = await getUserInfo();
@@ -47,45 +65,9 @@ async function fetchUserInfo() {
             user.value = { name: res.data.result.name };
         }
     } catch (error) {
-        console.error('Error fetching user info:', error);
-        user.value = null;
+        showNotification('Failed to get user info', 'error');
     }
 }
-
-// 获取用户的调色板
-async function fetchUserPalettes() {
-    try {
-        if (!user.value?.name) return;
-
-        const response = await axios.get('/api/users/getFavorites', {
-            params: { name: user.value.name }
-        });
-
-        if (response.data.code === '000') {
-            palettes.value = response.data.result;
-        }
-    } catch (error) {
-        console.error('Error fetching palettes:', error);
-    }
-}
-
-// 选择调色板
-function selectPalette(colors: string[]) {
-    emit('select', colors);
-    emit('update:modelValue', false);
-}
-
-// 关闭弹窗
-function closeLibrary() {
-    emit('update:modelValue', false);
-}
-
-// 组件挂载时加载数据
-onMounted(async () => {
-    await fetchUserInfoAndCollections();
-    // 如果需要获取收藏的调色板，还需要调用获取收藏的方法
-    await fetchAllCollectionsPalettes();
-});
 
 function handleOverlayClick(event: MouseEvent) {
     if (event.target === event.currentTarget) {
@@ -93,27 +75,42 @@ function handleOverlayClick(event: MouseEvent) {
     }
 }
 
-function handleAddToFavorites() {
-    const colorQuery = route.query.colors as string;
-    if (colorQuery) {
-        const colors = colorQuery.split(',');
-        // 设置要保存的调色板信息
+// 修改 handleAddToFavorites 函数
+async function handleAddToFavorites() {
+    try {
+        // 检查用户登录状态
+        if (!user.value?.name) {
+            showNotification('Please log in to save', 'error');
+            return;
+        }
+
+        // 从路由或当前状态获取颜色
+        let colors: string[] = [];
+        const colorQuery = route.query.colors as string;
+
+        if (colorQuery) {
+            colors = colorQuery.split(',').map(color => color.trim());
+        } else {
+            showNotification('No colors to save', 'error');
+            return;
+        }
+
+        if (colors.length === 0) {
+            showNotification('No colors to save', 'error');
+            return;
+        }
+
+        // 设置选中的调色板
         selectedPalette.value = {
-            id: Date.now(), // 临时ID，实际应该从后端获取
             colors: colors
         };
+        // 显示保存模态框
         showSaveModal.value = true;
-    }
-}
 
-function handleSavePalette(data: { success: boolean, message: string }) {
-    if (data.success) {
-        ElMessage.success('成功添加到收藏夹!');
-        fetchUserInfoAndFavorites(); // 刷新收藏列表
-    } else {
-        ElMessage.error(data.message);
+    } catch (error) {
+        showNotification('Failed to add to favorites', 'error');
+        console.error(error);
     }
-    showSaveModal.value = false;
 }
 
 function handleExploreSearch(query: string) {
@@ -136,10 +133,10 @@ async function handleSearchClose() {
     // 重新加载所有收藏
     await fetchAllCollectionsPalettes();
 }
-
-watch(selectedCollection, async (newValue) => {
-  await switchCollection(newValue);
-});
+async function handleSavePalette(data: { success: boolean, message: string }) {
+  showNotification(data.message, data.success ? 'success' : 'error');
+  showSaveModal.value = false;
+}
 
 </script>
 
@@ -158,7 +155,8 @@ watch(selectedCollection, async (newValue) => {
                                 Explore
                             </button>
                         </div>
-                        <button class="add-button" @click="handleAddToFavorites">
+                        <button class="add-button" @click="handleAddToFavorites" :disabled="!user?.name"
+                            :title="!user?.name ? '请先登录' : '添加到收藏'">
                             <Plus size="20" />
                         </button>
                     </div>
@@ -180,9 +178,10 @@ watch(selectedCollection, async (newValue) => {
                     <div class="divider"></div>
 
                     <!-- 调色板列表 -->
-                    <PaletteList layout="list" size="small" :tags="searchTags" mode="favorites"
-                        :collection="selectedCollection" />
-
+                    <div class="content-wrapper">
+                        <PaletteList layout="list" size="small" :tags="searchTags" mode="favorites"
+                            :collection="selectedCollection" />
+                    </div>
                 </template>
 
                 <template v-else>
@@ -199,8 +198,9 @@ watch(selectedCollection, async (newValue) => {
             </div>
         </div>
     </div>
-    <SavePaletteModal v-if="showSaveModal && selectedPalette" :show="showSaveModal" :palette-id="selectedPalette.id"
-        :colors="selectedPalette.colors" @close="showSaveModal = false" @save="handleSavePalette" />
+    <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :colors="selectedPalette.colors"
+        @close="showSaveModal = false" @save="handleSavePalette" />
+    <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
 </template>
 
 <style scoped>
@@ -225,10 +225,18 @@ watch(selectedCollection, async (newValue) => {
     z-index: 1003;
 }
 
+.content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
 .library-content {
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    /* 防止内容溢出 */
 }
 
 .header {
@@ -253,9 +261,20 @@ watch(selectedCollection, async (newValue) => {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .add-button:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.add-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.add-button:not(:disabled):hover {
     background: #f0f0f0;
     color: #333;
 }

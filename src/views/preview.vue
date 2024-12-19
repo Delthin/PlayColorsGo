@@ -35,11 +35,15 @@ async function getColorsFromUrl(): Promise<string[]> {
 
   // 如果URL中没有颜色,从API获取调色板
   await fetchPalettes();
-  return getRandomPalette();
+  const randomColors = getRandomPalette();
+  // 立即更新URL
+  updateUrlColors(randomColors);
+  return randomColors;
 }
 
 onMounted(async () => {
-  colors.value = await getColorsFromUrl();
+  const initialColors = await getColorsFromUrl();
+  colors.value = initialColors;
 });
 
 watch(
