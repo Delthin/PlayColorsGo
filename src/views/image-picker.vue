@@ -46,8 +46,9 @@ function handleImageUpload(event: Event) {
 // 初始化取色点
 function initializeColorPoints(count: number, keepExisting: boolean = false) {
     if (!imageElement.value) return;
-
-    const { width, height } = imageElement.value;
+    const rect = imageElement.value.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
     const currentPoints = colorPoints.value;
 
     if (keepExisting) {
@@ -95,14 +96,32 @@ function updateColors() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = imageElement.value.width;
-    canvas.height = imageElement.value.height;
-    ctx.drawImage(imageElement.value, 0, 0);
+    const img = imageElement.value;
+    const rect = img.getBoundingClientRect();
 
-    colors.value = colorPoints.value.map(point => {
-        const pixel = ctx.getImageData(point.x, point.y, 1, 1).data;
-        const color = `#${pixel[0].toString(16).padStart(2, '0')}${pixel[1].toString(16).padStart(2, '0')}${pixel[2].toString(16).padStart(2, '0')}`;
-        point.color = color;
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+
+    // 同时更新 colors 和 colorPoints 的颜色
+    colors.value = colorPoints.value.map((point, index) => {
+        const realX = Math.min(Math.floor(point.x * scaleX), img.naturalWidth - 1);
+        const realY = Math.min(Math.floor(point.y * scaleY), img.naturalHeight - 1);
+
+        const pixel = ctx.getImageData(realX, realY, 1, 1).data;
+        const color = `#${Array.from(pixel.slice(0, 3))
+            .map(x => x.toString(16).padStart(2, '0'))
+            .join('')}`;
+
+        // 更新 colorPoints 中对应点的颜色
+        colorPoints.value[index] = {
+            ...point,
+            color: color
+        };
+
         return color;
     });
 }
@@ -111,11 +130,17 @@ function handleMagnifier(event: MouseEvent) {
     if (!isDragging.value || !imageElement.value) return;
 
     const rect = imageElement.value.getBoundingClientRect();
+    const pointSize = draggedPointIndex.value === selectedColorIndex.value ? 28 : 20;
+    const offset = pointSize / 2;
+
+    // 使用取色点中心作为放大镜位置
+    const x = event.clientX - rect.left - offset;
+    const y = event.clientY - rect.top - offset;
+
     magnifierPos.value = {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
+        x: x + offset,
+        y: y + offset
     };
-    showMagnifier.value = true;
 }
 
 function handleExport(option: string) {
@@ -128,33 +153,53 @@ function handleExport(option: string) {
 }
 
 // 处理取色点拖动
-function handlePointDragStart(index: number) {
-
-    if (!isDragging.value || !imageElement.value) return;
-    handleMagnifier(event);
+function handlePointDragStart(event: MouseEvent, index: number) {
+    event.preventDefault();
     isDragging.value = true;
     draggedPointIndex.value = index;
+    selectedColorIndex.value = index; // 同步选中状态
+    showMagnifier.value = true;
+    handleMagnifier(event);
 }
+
+const throttledUpdateColors = throttle(updateColors, 100); // 限制颜色更新频率
 
 function handlePointDragMove(event: MouseEvent) {
     if (!isDragging.value || !imageElement.value) return;
 
-    const rect = imageElement.value.getBoundingClientRect();
-    const x = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
-    const y = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
+    requestAnimationFrame(() => {
+        const rect = imageElement.value!.getBoundingClientRect();
+        const pointSize = draggedPointIndex.value === selectedColorIndex.value ? 28 : 20;
+        const offset = pointSize / 2;
 
-    colorPoints.value[draggedPointIndex.value] = {
-        ...colorPoints.value[draggedPointIndex.value],
-        x,
-        y
-    };
+        // 计算中心点位置
+        const boundedX = Math.min(Math.max(0, event.clientX - rect.left - offset), rect.width - pointSize);
+        const boundedY = Math.min(Math.max(0, event.clientY - rect.top - offset), rect.height - pointSize);
 
-    updateColors();
+        if (draggedPointIndex.value !== -1) {
+            colorPoints.value[draggedPointIndex.value] = {
+                ...colorPoints.value[draggedPointIndex.value],
+                x: boundedX,
+                y: boundedY
+            };
+
+            // 更新放大镜位置，使用中心点坐标
+            magnifierPos.value = {
+                x: boundedX + offset,
+                y: boundedY + offset
+            };
+
+            throttledUpdateColors();
+        }
+    });
 }
 
 function handlePointDragEnd() {
     isDragging.value = false;
     draggedPointIndex.value = -1;
+    showMagnifier.value = false;
+    // 拖动结束时更新一次颜色确保准确
+    updateColors();
 }
 
 // 随机打乱取色点位置
@@ -175,11 +220,6 @@ function handleColorsChange(newColors: string[]) {
 
 function selectColor(index: number) {
     selectedColorIndex.value = index;
-    // 高亮对应的取色点
-    colorPoints.value = colorPoints.value.map((point, i) => ({
-        ...point,
-        isSelected: i === index
-    }));
 }
 
 function isLightColor(color: string): boolean {
@@ -188,6 +228,17 @@ function isLightColor(color: string): boolean {
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
     return (r * 0.299 + g * 0.587 + b * 0.114) > 128;
+}
+
+function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+    let inThrottle: boolean;
+    return function (this: any, ...args: Parameters<T>) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
 }
 
 </script>
@@ -244,7 +295,7 @@ function isLightColor(color: string): boolean {
 
                 <div class="image-container" v-else>
                     <img :src="imageUrl" ref="imageElement" @load="initializeColorPoints(DEFAULT_POINTS_COUNT)"
-                        @mousemove="handlePointDragMove" @mouseup="handlePointDragEnd"
+                        @mousedown.prevent @mousemove="handlePointDragMove" @mouseup="handlePointDragEnd"
                         @mouseleave="handlePointDragEnd" />
 
                     <!-- 放大镜 -->
@@ -252,16 +303,21 @@ function isLightColor(color: string): boolean {
                         left: `${magnifierPos.x}px`,
                         top: `${magnifierPos.y}px`,
                         backgroundImage: `url(${imageUrl})`,
-                        backgroundPosition: `-${magnifierPos.x * magnifierScale}px -${magnifierPos.y * magnifierScale}px`,
-                        backgroundSize: `${imageElement?.width * magnifierScale}px`
+                        backgroundPosition: `-${(magnifierPos.x - 50) * magnifierScale}px -${(magnifierPos.y - 50) * magnifierScale}px`,
+                        backgroundSize: `${imageElement?.width * magnifierScale}px ${imageElement?.height * magnifierScale}px`
                     }">
                     </div>
-
-                    <div v-for="(point, index) in colorPoints" :key="index" class="color-point" :style="{
-                        left: `${point.x}px`,
-                        top: `${point.y}px`,
-                        backgroundColor: point.color
-                    }" @mousedown="handlePointDragStart(index)"></div>
+<div v-for="(point, index) in colorPoints" 
+     :key="index" 
+     class="color-point"
+     :class="{ 'selected': index === selectedColorIndex }" 
+     :style="{
+         left: `${point.x}px`,
+         top: `${point.y}px`,
+         backgroundColor: point.color
+     }" 
+     @mousedown="handlePointDragStart($event, index)">
+</div>
 
                     <div class="image-controls">
                         <button @click="shufflePoints" class="control-button">
@@ -442,12 +498,16 @@ function isLightColor(color: string): boolean {
     position: relative;
     max-width: 100%;
     max-height: 600px;
+    display: inline-block; /* 添加这行 */
 }
 
 .image-container img {
     max-width: 100%;
     max-height: 600px;
     object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    display: block; /* 添加这行 */
 }
 
 .color-point {
@@ -455,10 +515,26 @@ function isLightColor(color: string): boolean {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: 2px solid white;
+    border: 3px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    cursor: move;
-    transform: translate(-50%, -50%);
+    cursor: none;
+    /* 隐藏鼠标 */
+    transform-origin: center;
+    will-change: transform;
+    backface-visibility: hidden;
+    /* GPU加速 */
+    transform: translate3d(0, 0, 0);
+    /* GPU加速 */
+    touch-action: none;
+    transition: width 0.3s ease, height 0.3s ease, border-width 0.3s ease;
+}
+
+.color-point.selected {
+    width: 28px;
+    height: 28px;
+    border-width: 4px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
 }
 
 .image-controls {
@@ -527,6 +603,16 @@ function isLightColor(color: string): boolean {
     opacity: 0.8;
 }
 
+.color-box-wrapper:hover .color-dot,
+.color-box-wrapper.selected .color-dot {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.color-box-wrapper.selected .color-dot {
+    width: 12px;
+    height: 12px;
+}
+
 .selected .color-dot {
     opacity: 1;
 }
@@ -557,6 +643,25 @@ function isLightColor(color: string): boolean {
     z-index: 100;
     background-repeat: no-repeat;
     transform: translate(-50%, -50%);
+    cursor: none;
+}
+
+.magnifier::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: black;
+    border: 1px solid white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.image-container.dragging {
+    cursor: none;
 }
 
 .panel-controls {
