@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { defineProps, onMounted, ref } from 'vue';
 import { router } from "../../router/index.ts";
-import { getUserInfo } from "../../api/user.ts";
+import { getUserInfo, deleteFavorite } from "../../api/user.ts";
 import NotificationToast from '../common/NotificationToast.vue'
-import { deleteFavorite } from "../../api/user.ts";
 import DeleteConfirmModal from '../common/DeleteConfirmModal.vue'
 
 const props = defineProps<{
@@ -72,7 +71,7 @@ function openPalette() {
   const palette = props.colors.join(','); // Join colors into a single string for easy passing
   console.log("on openPalette");
   router.push({
-    name: 'Preview', // 使用命名路由
+    path: '/preview',
     query: {
       colors: palette
     }

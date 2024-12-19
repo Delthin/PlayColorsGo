@@ -7,7 +7,7 @@ import { getUserInfo } from "../api/user";
 import PageHeader from "../components/layout/PageHeader.vue";
 
 const tags = ref<string[]>([]);
-const selectedCollection = ref('all');
+const selectedCollection = ref('All');
 const {
   collections,
   fetchUserInfoAndCollections,

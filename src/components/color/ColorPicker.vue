@@ -212,10 +212,17 @@ function handleDrop(event: DragEvent) {
 }
 
 
-// 监听 props.modelValue 的变化
 watch(() => props.modelValue, (newValue) => {
+  // 更新显示的颜色数量
   displayCount.value = Math.min(newValue.length, props.maxColors);
-}, { deep: true });
+  
+  // 重置调整面板状态
+  if (showAdjustmentPanel.value) {
+    showAdjustmentPanel.value = false;
+    resetAdjustment();
+  }
+}, { deep: true, immediate: true }); // 添加 immediate: true 以确保首次加载时也能正确处理
+
 </script>
 
 

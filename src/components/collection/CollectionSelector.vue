@@ -89,7 +89,6 @@ onMounted(async () => {
             <select :value="selectedCollection"
                 @input="$emit('update:selectedCollection', ($event.target as HTMLSelectElement).value)">
                 <option value="" disabled selected>Select a Collection</option>
-                <!-- <option value="all">All Collections</option> -->
                 <option v-for="collection in collections" :key="collection" :value="collection">
                     {{ collection }}
                 </option>

@@ -48,9 +48,17 @@ onMounted(async () => {
 
 watch(
   () => route.query.colors,
-  async () => {
-    colors.value = await getColorsFromUrl();
-  }
+  async (newColorQuery) => {
+    if (newColorQuery) {
+      // 直接从查询参数更新颜色
+      colors.value = (newColorQuery as string).split(',');
+    } else {
+      // 如果没有查询参数，获取随机颜色
+      const randomColors = await getColorsFromUrl();
+      colors.value = randomColors;
+    }
+  },
+  { immediate: true } // 添加 immediate: true 以确保首次加载时也能正确处理
 );
 
 function handleColorChange(newColors: string[]) {

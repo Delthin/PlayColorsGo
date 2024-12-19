@@ -20,7 +20,7 @@ export function usePalettes() {
   const favorites = ref<Palette[]>([])
   const collections = ref<string[]>([])
   const user = ref<{ name: string }>({ name: "" })
-  const currentCollection = ref<string>('all')
+  const currentCollection = ref<string>('All')
 
   // 获取用户信息和收藏夹列表
   async function fetchUserInfoAndCollections() {
@@ -28,7 +28,7 @@ export function usePalettes() {
       const res = await getUserInfo()
       if (res.data.code === '000') {
         user.value = { name: res.data.result.name }
-        collections.value = ['all', ...res.data.result.paletteCollections.map((c: any) => c.name)]
+        collections.value = ['All', ...res.data.result.paletteCollections.map((c: any) => c.name)]
       }
     } catch (error) {
       console.error("Error fetching user info:", error)
@@ -36,13 +36,13 @@ export function usePalettes() {
   }
 
   // 获取指定收藏夹的调色板
-  async function fetchCollectionPalettes(collectionName: string = 'all') {
+  async function fetchCollectionPalettes(collectionName: string = 'All') {
     if (!user.value.name) return
-    
+
     try {
       loading.value = true
-      const response = await getFavorites(user.value.name, collectionName === 'all' ? '' : collectionName)
-      
+      const response = await getFavorites(user.value.name, collectionName === 'All' ? '' : collectionName)
+
       if (response.data.code === '000') {
         favorites.value = response.data.result.map((palette: any) => ({
           id: palette.id,
@@ -59,15 +59,15 @@ export function usePalettes() {
 
   async function fetchAllCollectionsPalettes() {
     if (!user.value.name) return;
-    
+
     try {
       loading.value = true;
       const userInfoRes = await getUserInfo();
       if (userInfoRes.data.code === '000') {
         user.value = { name: userInfoRes.data.result.name };
         const userCollections = userInfoRes.data.result.paletteCollections.map((c: any) => c.name);
-        collections.value = ['all', ...userCollections];
-        
+        collections.value = ['All', ...userCollections];
+
         const allPalettes: Palette[] = [];
         for (const collection of userCollections) {
           const response = await getFavorites(user.value.name, collection);
@@ -81,7 +81,7 @@ export function usePalettes() {
             allPalettes.push(...palettes);
           }
         }
-        
+
         const uniquePalettes = Array.from(
           new Map(allPalettes.map(palette => [palette.id, palette])).values()
         );
@@ -105,10 +105,10 @@ export function usePalettes() {
           params: {
             userName: user.value.name,
             tags,
-            collectionName: currentCollection.value === 'all' ? '' : currentCollection.value
+            collectionName: currentCollection.value === 'All' ? '' : currentCollection.value
           }
         })
-        
+
         if (response.data.code === '000') {
           favorites.value = response.data.result.map((palette: any) => ({
             id: palette.id,
@@ -125,7 +125,7 @@ export function usePalettes() {
       loading.value = false
     }
   }
-  
+
   // 获取探索页面的调色板
   async function fetchPalettes(tags?: string[]) {
     loading.value = true
@@ -170,10 +170,10 @@ export function usePalettes() {
   }
 
   const switchCollection = async (collectionName: string) => {
-    if (collectionName === 'all') {
+    if (collectionName === 'All') {
       const allPalettes: Palette[] = [];
       for (const collection of collections.value) {
-        if (collection !== 'all') {
+        if (collection !== 'All') {
           const palettes = await fetchPalettesForCollection(collection);
           allPalettes.push(...palettes);
         }

@@ -23,7 +23,7 @@ const route = useRoute();
 const searchTags = ref<string[]>([]);
 const showSaveModal = ref(false)
 const selectedPalette = ref<{ id?: number, colors: string[] } | null>(null)
-const selectedCollection = ref('all');
+const selectedCollection = ref('All');
 const router = useRouter();
 
 
