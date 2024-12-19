@@ -21,14 +21,16 @@
     "noFallthroughCasesInSwitch": true,
 
     /* ElementUI */
-    "types": ["element-plus/global"],
+    "types": ["element-plus/global"]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "src/types/**/*.d.ts",
-    "auto-imports.d.ts"
+    "auto-imports.d.ts",
+    "node_modules/unplugin-auto-import/auto-imports.d.ts",
+    "node_modules/unplugin-auto-import/auto-imports.d.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

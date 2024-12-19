@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter, useRoute } from 'vue-router';
+import {onMounted, ref, onUnmounted} from "vue";
+import {useRouter, useRoute} from 'vue-router';
 import LoginModal from "../auth/LoginModal.vue";
 import SignUpModal from "../auth/SignUpModal.vue";
 import UserProfileDropDown from "../auth/UserProfileDropDown.vue";
-import { getUserInfo } from "../../api/user.ts";
+import {getUserInfo} from "../../api/user.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -16,10 +16,17 @@ const tags = ref<string[]>([]);
 const inputTag = ref<string>('');
 const emit = defineEmits(["tags-update"]);
 const user = ref<{ name: string } | null>(null);
-const isSearchModalOpen = ref(false); // State to track modal visibility
+const isTagRecommendationVisible = ref(false);
 
-function adjustSearchModal() {
-  isSearchModalOpen.value = !isSearchModalOpen.value;
+function onSearchInputFocus() {
+  isTagRecommendationVisible.value = true;
+}
+
+function onOutsideClick(event: MouseEvent) {
+  const searchContainer = document.querySelector('.search-container');
+  if (searchContainer && !searchContainer.contains(event.target as Node)) {
+    isTagRecommendationVisible.value = false;
+  }
 }
 
 const colorsTags = ref<string[]>([
@@ -40,7 +47,7 @@ async function fetchUserInfo() {
     const res = await getUserInfo();
     if (res.data.code === '000') {
       console.log("fetchUserInfo!");
-      user.value = { name: res.data.result.name };
+      user.value = {name: res.data.result.name};
       console.log(user.value.name);
       console.info('user', user.value);
     }
@@ -58,6 +65,12 @@ onMounted(() => {
   } else {
     fetchUserInfo();
   }
+
+  document.addEventListener('click', onOutsideClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', onOutsideClick);
 });
 
 function addTag(tag: string) {
@@ -82,7 +95,7 @@ function handleKeyPress(event: KeyboardEvent) {
 }
 
 function openPalette() {
-  router.push({ path: '/preview', query: { colors: null } });
+  router.push({path: '/preview', query: {colors: null}});
 }
 
 function openLoginModal() {
@@ -112,13 +125,10 @@ function openSignUpModal() {
             </span>
           </div>
           <span class="search-icon" v-if="tags.length === 0">
-            <img src="../../../public/search.png" alt="search" />
+            <img src="../../../public/search.png" alt="search"/>
           </span>
-          <input type="text" v-model="inputTag" @keydown="handleKeyPress" placeholder="Search or add tags"
-            class="search-input" />
-          <span class="close-icon" @click="adjustSearchModal">
-            <img src="../../../public/close.png" alt="close" />
-          </span>
+          <input type="text" v-model="inputTag" @keydown="handleKeyPress" @focus="onSearchInputFocus"
+                 placeholder="Search or add tags" class="search-input"/>
         </div>
       </div>
 
@@ -134,10 +144,10 @@ function openSignUpModal() {
             Preview
           </span>
         </div>
-        <div class="sep"> | </div>
+        <div class="sep"> |</div>
         <div class="auth-buttons">
           <div v-if="user">
-            <UserProfileDropDown />
+            <UserProfileDropDown/>
           </div>
           <div v-else>
             <span class="sign-in" @click="openLoginModal">Sign in</span>
@@ -147,7 +157,7 @@ function openSignUpModal() {
       </div>
     </div>
 
-    <div v-if="isSearchModalOpen" class="search-modal-overlay">
+    <div v-if="isTagRecommendationVisible" class="search-modal-overlay">
       <div class="search-modal-content">
         <div class="tag-section">
           <div>
@@ -179,9 +189,9 @@ function openSignUpModal() {
     </div>
 
     <LoginModal v-if="showLoginModal" @close="showLoginModal = false" @loginSuccess="user = $event"
-      @switchToSignUp="openSignUpModal" />
+                @switchToSignUp="openSignUpModal"/>
     <SignUpModal v-if="showSignUpModal" @close="showSignUpModal = false" @signupSuccess="user = $event"
-      @switchToSignIn="openLoginModal" />
+                 @switchToSignIn="openLoginModal"/>
   </nav>
 </template>
 
@@ -361,10 +371,9 @@ function openSignUpModal() {
 
 .search-modal-overlay {
   position: fixed;
-  top: 86px;
+  top: 90px;
   width: 100%;
   background: #ffffff;
-  z-index: 997;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -380,7 +389,7 @@ function openSignUpModal() {
   margin-top: 20px;
 }
 
-.tag-section>div {
+.tag-section > div {
   flex: 1;
 }
 
