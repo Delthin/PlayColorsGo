@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3cb79d64-bb07-436f-b54a-0ff43ac64dd9" name="Changes" comment="modify: favourite.vue">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/palette.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/palette.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/color/ColorPalette.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/color/ColorPalette.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/composables/usePalettes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/composables/usePalettes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/layout/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layout/Navbar.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
