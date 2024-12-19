@@ -31,9 +31,9 @@ const showDeleteConfirm = ref(false);
 async function fetchUserInfo() {
   getUserInfo().then((res) => {
     if (res.data.code === '000') {
-      console.log("fetchUserInfo!")
+      // console.log("fetchUserInfo!")
       user.value = { name: res.data.result.name };
-      console.log(user.value.name);
+      // console.log(user.value.name);
     }
   })
 }

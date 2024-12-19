@@ -1,6 +1,7 @@
 import { ref, Ref } from 'vue'
 import { axios } from '../utils/request'
 import { getUserInfo, getFavorites } from "../api/user.ts"
+import {PALETTE_MODULE} from "../api/_prefix.ts";
 
 export interface Palette {
   id: number
@@ -131,9 +132,9 @@ export function usePalettes() {
     loading.value = true
     try {
       if (tags && tags.length > 0) {
-        const response = await axios.post('/api/palettes/searchPalettes', null, {
-          params: { tags }
-        })
+        console.log("look",tags);
+        const tagParams = tags.map(tag => `tags=${encodeURIComponent(tag)}`).join('&');
+        const response =  await axios.post(`/api/palettes/searchPalettes?${tagParams}`);
         if (response.data.code === '000') {
           palettes.value = response.data.result
         }
