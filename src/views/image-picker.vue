@@ -465,7 +465,7 @@ function isLightColor(color: string): boolean {
 .image-container {
     position: relative;
     max-width: 100%;
-    max-height: 600px;
+    max-height: 900px;
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
@@ -480,7 +480,7 @@ function isLightColor(color: string): boolean {
 
 .image-container img {
     max-width: 100%;
-    max-height: 600px;
+    max-height: 900px;
     object-fit: contain;
     pointer-events: none;
     -webkit-user-drag: none;
