@@ -115,23 +115,6 @@ function openSignUpModal() {
       <div class="navbar-left">
         <h1 class="title-left">Coolors</h1>
       </div>
-
-      <div class="navbar-center">
-        <div class="search-container">
-          <div class="tags" v-if="tags.length > 0">
-            <span v-for="tag in tags" :key="tag" class="tag">
-              {{ tag }}
-              <button @click="removeTag(tag)">×</button>
-            </span>
-          </div>
-          <span class="search-icon" v-if="tags.length === 0">
-            <img src="../../../public/search.png" alt="search"/>
-          </span>
-          <input type="text" v-model="inputTag" @keydown="handleKeyPress" @focus="onSearchInputFocus"
-                 placeholder="Search or add tags" class="search-input"/>
-        </div>
-      </div>
-
       <div class="navbar-right">
         <div class="nav-links">
           <span :class="{ active: route.path === '/image-picker' }" @click="router.push('/image-picker')">
@@ -154,6 +137,26 @@ function openSignUpModal() {
             <button class="sign-up" @click="openSignUpModal">Sign up</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div v-if="route.path === '/colors'" class="search-row">
+      <div class="search-container">
+        <div class="tags" v-if="tags.length > 0">
+            <span v-for="tag in tags" :key="tag" class="tag">
+              {{ tag }}
+              <button @click="removeTag(tag)">×</button>
+            </span>
+        </div>
+        <span class="search-icon" v-if="tags.length === 0">
+            <img src="../../../public/search.png" alt="search"/>
+          </span>
+        <input type="text"
+               v-model="inputTag"
+               @keydown="handleKeyPress"
+               @focus="onSearchInputFocus"
+               placeholder="Search or add tags"
+               class="search-input"/>
       </div>
     </div>
 
@@ -201,16 +204,17 @@ function openSignUpModal() {
   top: 0;
   width: 100%;
   background-color: #ffffff;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   z-index: 996;
 }
 
 .navbar-content {
   margin: 0 auto;
-  padding: 15px 20px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.08);
+
 }
 
 .navbar-left {
@@ -225,35 +229,20 @@ function openSignUpModal() {
   margin: 0;
 }
 
-.navbar-center {
-  flex: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.search-row {
+  position: relative;
+  top: 10px;
+  padding: 15px 20px;
+  width: 100%;
+  background-color: #ffffff;
+  z-index: 995;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.08);
 }
 
 .search-container {
-  transition: all 0.3s ease;
-  background-color: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 8px 12px;
+  width: 100%;
   display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 70%;
-}
-
-.close-icon {
-  cursor: pointer;
-  margin-left: 8px;
-  width: 20px;
-  height: 20px;
-}
-
-.close-icon img {
-  width: 100%;
-  height: 100%;
 }
 
 .search-icon img {
@@ -268,6 +257,7 @@ function openSignUpModal() {
   outline: none;
   font-size: 14px;
   border-radius: 8px;
+  min-height: 40px;
 }
 
 .search-input::placeholder {
@@ -279,16 +269,6 @@ function openSignUpModal() {
   flex-wrap: wrap;
   margin-right: 8px;
   gap: 4px;
-}
-
-.tag {
-  max-height: 13px;
-  background: #f0f0f0;
-  border-radius: 12px;
-  display: flex;
-  margin: 2px;
-  align-items: center;
-  font-size: 14px;
 }
 
 .tag button {
@@ -370,15 +350,14 @@ function openSignUpModal() {
 }
 
 .search-modal-overlay {
-  position: fixed;
-  top: 90px;
+  position: relative;
   width: 100%;
   background: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-modal-content {
-  text-align: center;
+  text-align: left;
   min-height: 300px;
   padding: 20px;
 }
@@ -402,11 +381,16 @@ function openSignUpModal() {
 }
 
 .tag {
-  background: none;
-  border: 2px solid #f0f0f0;
+  max-height: 12px;
   border-radius: 10px;
-  padding: 10px 20px;
+  display: flex;
+  margin: 2px;
+  align-items: center;
   font-size: 14px;
+
+  background: none;
+  border: 1.5px solid #e0e0e0;
+  padding: 10px 20px;
   cursor: pointer;
   transition: background 0.3s ease;
   text-align: center;
@@ -443,4 +427,17 @@ function openSignUpModal() {
 // gap: 10px; /* Adjust spacing if needed */
 // justify-content: center; /* Ensure the buttons stay centered */
 // }
+//}
+
+
+//.search-container {
+//  transition: all 0.3s ease;
+//  background-color: #ffffff;
+//  border-radius: 20px;
+//  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+//  padding: 8px 12px;
+//  display: flex;
+//  align-items: center;
+//  width: 100%;
+//  max-width: 70%;
 //}
