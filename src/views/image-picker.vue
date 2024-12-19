@@ -14,6 +14,9 @@ const DEFAULT_POINTS_COUNT = 5;
 const showMagnifier = ref(false);
 const magnifierPos = ref({ x: 0, y: 0 });
 const magnifierScale = 2; // 放大倍数
+const selectedColorIndex = ref<number>(0);
+const hoveredColorIndex = ref<number | null>(null);
+
 
 const exportOptions = [
     { label: 'Open in Generator', icon: 'fas fa-external-link-alt' },
@@ -170,9 +173,6 @@ function handleColorsChange(newColors: string[]) {
 }
 
 
-// 选中颜色点
-const selectedColorIndex = ref<number | null>(null);
-
 function selectColor(index: number) {
     selectedColorIndex.value = index;
     // 高亮对应的取色点
@@ -206,12 +206,12 @@ function isLightColor(color: string): boolean {
                             <div v-for="(color, index) in colors" :key="index" class="color-box-wrapper"
                                 @mouseenter="hoveredColorIndex = index" @mouseleave="hoveredColorIndex = null"
                                 @click="selectColor(index)">
-                                <div class="color-box" :style="{ backgroundColor: color }" :class="{
-                                    'selected': index === selectedColorIndex,
-                                    'light': isLightColor(color)
-                                }">
+                                <div class="color-box" :style="{ backgroundColor: color }">
                                     <div v-if="hoveredColorIndex === index || selectedColorIndex === index"
-                                        class="color-dot">
+                                        class="color-dot" :style="{
+                                            backgroundColor: isLightColor(color) ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)',
+                                            opacity: selectedColorIndex === index ? 1 : 0.5
+                                        }">
                                     </div>
                                 </div>
                             </div>
@@ -337,26 +337,6 @@ function isLightColor(color: string): boolean {
     width: 100%;
     position: relative;
     transition: transform 0.2s;
-}
-
-.color-box.selected {
-    transform: scale(1.1);
-}
-
-.color-box.selected::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-}
-
-.color-box.selected.dark::after {
-    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .color-adjustment {
@@ -544,10 +524,20 @@ function isLightColor(color: string): boolean {
     left: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.3s ease;
+    opacity: 0.8;
 }
 
-.light .color-dot {
-    background-color: black !important;
+.selected .color-dot {
+    opacity: 1;
+}
+
+.color-dot.light {
+    background-color: black;
+    /* 浅色背景时使用黑色 */
+}
+
+.color-dot.dark {
+    background-color: white;
 }
 
 .color-info {
