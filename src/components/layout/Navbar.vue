@@ -114,13 +114,8 @@ function openSignUpModal() {
           <span class="search-icon" v-if="tags.length === 0">
             <img src="../../../public/search.png" alt="search" />
           </span>
-          <input
-              type="text"
-              v-model="inputTag"
-              @keydown="handleKeyPress"
-              placeholder="Search or add tags"
-              class="search-input"
-          />
+          <input type="text" v-model="inputTag" @keydown="handleKeyPress" placeholder="Search or add tags"
+            class="search-input" />
           <span class="close-icon" @click="adjustSearchModal">
             <img src="../../../public/close.png" alt="close" />
           </span>
@@ -129,16 +124,13 @@ function openSignUpModal() {
 
       <div class="navbar-right">
         <div class="nav-links">
-          <span
-              :class="{ active: route.path === '/colors' }"
-              @click="router.push('/colors')"
-          >
+          <span :class="{ active: route.path === '/image-picker' }" @click="router.push('/image-picker')">
+            Image-Picker
+          </span>
+          <span :class="{ active: route.path === '/colors' }" @click="router.push('/colors')">
             Colors
           </span>
-          <span
-              :class="{ active: route.path === '/preview' }"
-              @click="openPalette"
-          >
+          <span :class="{ active: route.path === '/preview' }" @click="openPalette">
             Preview
           </span>
         </div>
@@ -161,12 +153,7 @@ function openSignUpModal() {
           <div>
             <h3>Colors</h3>
             <div class="tags-container">
-              <div
-                  class="tag"
-                  v-for="tag in colorsTags"
-                  :key="tag"
-                  @click="addTag(tag)"
-              >
+              <div class="tag" v-for="tag in colorsTags" :key="tag" @click="addTag(tag)">
                 {{ tag }}
               </div>
             </div>
@@ -174,12 +161,7 @@ function openSignUpModal() {
           <div>
             <h3>Styles</h3>
             <div class="tags-container">
-              <div
-                  class="tag"
-                  v-for="tag in stylesTags"
-                  :key="tag"
-                  @click="addTag(tag)"
-              >
+              <div class="tag" v-for="tag in stylesTags" :key="tag" @click="addTag(tag)">
                 {{ tag }}
               </div>
             </div>
@@ -187,12 +169,7 @@ function openSignUpModal() {
           <div>
             <h3>Topics</h3>
             <div class="tags-container">
-              <div
-                  class="tag"
-                  v-for="tag in topicsTags"
-                  :key="tag"
-                  @click="addTag(tag)"
-              >
+              <div class="tag" v-for="tag in topicsTags" :key="tag" @click="addTag(tag)">
                 {{ tag }}
               </div>
             </div>
@@ -201,18 +178,10 @@ function openSignUpModal() {
       </div>
     </div>
 
-    <LoginModal
-        v-if="showLoginModal"
-        @close="showLoginModal = false"
-        @loginSuccess="user = $event"
-        @switchToSignUp="openSignUpModal"
-    />
-    <SignUpModal
-        v-if="showSignUpModal"
-        @close="showSignUpModal = false"
-        @signupSuccess="user = $event"
-        @switchToSignIn="openLoginModal"
-    />
+    <LoginModal v-if="showLoginModal" @close="showLoginModal = false" @loginSuccess="user = $event"
+      @switchToSignUp="openSignUpModal" />
+    <SignUpModal v-if="showSignUpModal" @close="showSignUpModal = false" @signupSuccess="user = $event"
+      @switchToSignIn="openLoginModal" />
   </nav>
 </template>
 
@@ -411,7 +380,7 @@ function openSignUpModal() {
   margin-top: 20px;
 }
 
-.tag-section > div {
+.tag-section>div {
   flex: 1;
 }
 
@@ -441,28 +410,28 @@ function openSignUpModal() {
 
 /* Responsive adjustments */
 //@media (max-width: 768px) {
-//  .navbar-content {
-//    flex-direction: column;
-//    align-items: stretch;
-//  }
+// .navbar-content {
+// flex-direction: column;
+// align-items: stretch;
+// }
 //
-//  .navbar-left,
-//  .navbar-center,
-//  .navbar-right {
-//    flex: none;
-//    width: 100%;
-//    text-align: center;
-//    margin: 5px 0;
-//  }
+// .navbar-left,
+// .navbar-center,
+// .navbar-right {
+// flex: none;
+// width: 100%;
+// text-align: center;
+// margin: 5px 0;
+// }
 //
-//  .navbar-right {
-//    justify-content: center;
-//    flex-direction: row;
-//  }
+// .navbar-right {
+// justify-content: center;
+// flex-direction: row;
+// }
 //
-//  .auth-buttons {
-//    display: flex; /* Maintain row layout */
-//    gap: 10px; /* Adjust spacing if needed */
-//    justify-content: center; /* Ensure the buttons stay centered */
-//  }
+// .auth-buttons {
+// display: flex; /* Maintain row layout */
+// gap: 10px; /* Adjust spacing if needed */
+// justify-content: center; /* Ensure the buttons stay centered */
+// }
 //}

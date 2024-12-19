@@ -25,6 +25,11 @@ const routes = [
         name: 'Favorites',
         component: () => import('../views/favorites.vue'),
     },
+    {
+        path: '/image-picker',
+        name: 'ImagePicker',
+        component: () => import('../views/image-picker.vue'),
+    }
 ];
 
 const router = createRouter({
