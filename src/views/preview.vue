@@ -5,6 +5,7 @@ import Navbar from "../components/layout/Navbar.vue";
 import ColorPicker from "../components/color/ColorPicker.vue";
 import { usePalettes } from "../composables/usePalettes";
 import PageHeader from "../components/layout/PageHeader.vue";
+import Template from "../components/visualizer/Template.vue";
 
 
 const route = useRoute();
@@ -73,5 +74,12 @@ function handleColorChange(newColors: string[]) {
     title="Palette Visualizer"
     subtitle="Preview your colors on real designs for a better visual understanding."
   />
+  <Template :colors="colors" class="template" />
   <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
 </template>
+
+<style scoped>
+.template {
+  margin-bottom: 300px;
+}
+</style>
