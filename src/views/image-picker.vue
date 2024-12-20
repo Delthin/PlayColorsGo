@@ -241,7 +241,7 @@ function isLightColor(color: string): boolean {
                             </div>
                         </div>
                         <div class="color-adjustment">
-                            <button @click="addColorPoint" :disabled="colors.length >= 10">+</button>
+                            <button @click="addColorPoint" :disabled="colors.length >= 10 || colors.length === 0">+</button>
                             <button @click="removeColorPoint" :disabled="colors.length <= 1">-</button>
                         </div>
                     </div>
@@ -504,7 +504,7 @@ function isLightColor(color: string): boolean {
 }
 
 .color-point:active {
-    cursor: grabbing;
+    cursor: none;
 }
 
 .color-point.selected {

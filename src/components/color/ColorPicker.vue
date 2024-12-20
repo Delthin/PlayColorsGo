@@ -211,18 +211,45 @@ function handleDrop(event: DragEvent) {
   dragOverIndex.value = null;
 }
 
-
-watch(() => props.modelValue, (newValue) => {
-  // 更新显示的颜色数量
-  displayCount.value = Math.min(newValue.length, props.maxColors);
+// 添加新的函数处理滑块吸附
+function handleSliderInput(e: Event, property: 'hue' | 'saturation' | 'brightness') {
+  const value = Number((e.target as HTMLInputElement).value);
   
-  // 重置调整面板状态
-  if (showAdjustmentPanel.value) {
-    showAdjustmentPanel.value = false;
+  if (Math.abs(value) <= 5) {
+    // 直接修改对应的ref值
+    if (property === 'hue') {
+      hue.value = 0;
+    } else if (property === 'saturation') {
+      saturation.value = 0;
+    } else if (property === 'brightness') {
+      brightness.value = 0;
+    }
+  } else {
+    // 不在吸附范围内时，正常更新值
+    if (property === 'hue') {
+      hue.value = value;
+    } else if (property === 'saturation') {
+      saturation.value = value;
+    } else if (property === 'brightness') {
+      brightness.value = value;
+    }
+  }
+  adjustColors();
+}
+
+// 修改 watch 监听器，只在颜色数量变化时重置面板
+watch(() => props.modelValue.length, (newLength) => {
+  // 更新显示的颜色数量
+  displayCount.value = Math.min(newLength, props.maxColors);
+}, { immediate: true });
+
+// 分开监听 modelValue 的内容变化，但不重置面板
+watch(() => [...props.modelValue], () => {
+  // 仅当面板已关闭时才重置调整值
+  if (!showAdjustmentPanel.value) {
     resetAdjustment();
   }
-}, { deep: true, immediate: true }); // 添加 immediate: true 以确保首次加载时也能正确处理
-
+}, { deep: true });
 </script>
 
 
@@ -271,21 +298,21 @@ watch(() => props.modelValue, (newValue) => {
       <div class="adjustment-slider">
         <label>Hue</label>
         <div class="slider-container">
-          <input type="range" id="hue-slider" v-model="hue" min="-180" max="180" @input="adjustColors">
+          <input type="range" id="hue-slider" v-model="hue" min="-180" max="180" @input="(e) => handleSliderInput(e, 'hue')">
           <input type="number" v-model="hue" min="-180" max="180" @input="adjustColors">
         </div>
       </div>
       <div class="adjustment-slider">
         <label>Saturation</label>
         <div class="slider-container">
-          <input type="range" id="saturation-slider" v-model="saturation" min="-100" max="100" @input="adjustColors">
+          <input type="range" id="saturation-slider" v-model="saturation" min="-100" max="100" @input="(e) => handleSliderInput(e, 'hue')">
           <input type="number" v-model="saturation" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
       <div class="adjustment-slider">
         <label>Brightness</label>
         <div class="slider-container">
-          <input type="range" id="brightness-slider" v-model="brightness" min="-100" max="100" @input="adjustColors">
+          <input type="range" id="brightness-slider" v-model="brightness" min="-100" max="100" @input="(e) => handleSliderInput(e, 'hue')">
           <input type="number" v-model="brightness" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
@@ -354,6 +381,22 @@ watch(() => props.modelValue, (newValue) => {
 
 .color-adjustment {
   margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.color-adjustment button {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
 }
 
 .color-box {
@@ -389,17 +432,6 @@ watch(() => props.modelValue, (newValue) => {
   height: 100%;
   padding: 0;
   border: none;
-}
-
-.color-adjustment button {
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  font-size: 18px;
-  width: 25px;
-  height: 25px;
-  cursor: pointer;
-  color: #333;
 }
 
 .tools {
