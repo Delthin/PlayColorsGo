@@ -18,6 +18,21 @@ const emit = defineEmits(["tags-update"]);
 const user = ref<{ name: string } | null>(null);
 const isTagRecommendationVisible = ref(false);
 
+const colorMap: Record<string, string> = {
+  red: "red",
+  orange: "orange",
+  brown: "brown",
+  yellow: "yellow",
+  green: "limegreen",
+  turquoise: "turquoise",
+  blue: "blue",
+  violet: "violet",
+  pink: "pink",
+  gray: "gray",
+  black: "black",
+  white: "white",
+};
+
 function onSearchInputFocus() {
   isTagRecommendationVisible.value = true;
 }
@@ -113,6 +128,8 @@ function openSignUpModal() {
   showLoginModal.value = false;
   showSignUpModal.value = true;
 }
+
+
 </script>
 
 <template>
@@ -150,18 +167,21 @@ function openSignUpModal() {
       <div class="search-container">
         <div class="tags" v-if="tags.length > 0">
             <span v-for="tag in tags" :key="tag" class="tag">
+              <span v-if="colorMap[tag.toLowerCase()]"
+                    class="color-circle" :style="{ backgroundColor: colorMap[tag.toLowerCase()] }">
+              </span>
               {{ tag }}
               <button @click="removeTag(tag)">×</button>
             </span>
         </div>
         <span class="search-icon" v-if="tags.length === 0">
             <img src="../../../public/search.png" alt="search"/>
-          </span>
+        </span>
         <input type="text"
                v-model="inputTag"
                @keydown="handleKeyPress"
                @focus="onSearchInputFocus"
-               placeholder="Search or add tags"
+               :placeholder= "tags.length > 0 ? 'Add tag' : 'Search with colors, topics, styles or hex values...'"
                class="search-input"/>
       </div>
     </div>
@@ -173,6 +193,7 @@ function openSignUpModal() {
             <h3>Colors</h3>
             <div class="tags-container">
               <div class="tag" v-for="tag in colorsTags" :key="tag" @click="addTagFromRecommendation(tag)">
+                <span class="color-circle" :style="{backgroundColor: colorMap[tag.toLowerCase()] }"></span>
                 {{ tag }}
               </div>
             </div>
@@ -258,19 +279,24 @@ function openSignUpModal() {
   width: 20px;
   height: 20px;
   margin-right: 8px;
+  margin-bottom: 5px;
 }
 
 .search-input {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 14px;
+  font-size: 17px;
   border-radius: 8px;
   min-height: 40px;
+  padding-bottom: 5px;
+  margin-left: 10px;
+  margin-top: -6px;
 }
 
 .search-input::placeholder {
   color: #aaa;
+  font-size: 17px;
 }
 
 .tags {
@@ -278,16 +304,18 @@ function openSignUpModal() {
   flex-wrap: wrap;
   margin-right: 8px;
   gap: 4px;
+  margin-top: -10px;
 }
 
 .tag button {
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: 8px;
+  margin-left: 14px;
   color: #888;
-  font-size: 12px;
+  font-size: 25px;
   padding: 0;
+  margin-top: 3px;
 }
 
 .navbar-right {
@@ -397,15 +425,14 @@ function openSignUpModal() {
 }
 
 .tag {
-  max-height: 12px;
+  max-height: 18px;
   border-radius: 10px;
   display: flex;
   margin: 2px;
   align-items: center;
   font-size: 14px;
-
-  background: none;
-  border: 1.5px solid #e0e0e0;
+  background-color: #f0f0f0;
+  border: none;
   padding: 10px 20px;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -414,6 +441,15 @@ function openSignUpModal() {
 
 .tag:hover {
   background: #e0e0e0;
+}
+
+.color-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  border: none;
 }
 
 /* 响应式调整 */
