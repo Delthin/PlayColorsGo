@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {defineProps, onMounted, reactive, ref, watch} from "vue";
+import {defineProps, onMounted, onUnmounted, reactive, ref, watch} from "vue";
+import {ElColorPicker} from "element-plus";
 
 interface Props {
   colors: string[]
@@ -9,8 +10,32 @@ const props = defineProps<Props>()
 const colors = reactive<string[]>([])
 const svgRef = ref<SVGSVGElement | null>(null)
 
+const currentColor = ref('#FFFFFF')
+const currentColorIndex = ref<number | null>(0)
+const colorPickerRef = ref<InstanceType<typeof ElColorPicker> | null>(null)
+
+const setColorPickerPosition = (x: number, y: number) => {
+  if (colorPickerRef.value === null) {
+    return
+  }
+  const popperElement = document.querySelector(`.custom-color-picker`) as HTMLElement
+  if (popperElement === null) {
+    return
+  }
+  // it made difference at a time, but currently doesn't due to bug of element-plus
+  popperElement.style.left = `${x}px`
+  popperElement.style.top = `${y}px`
+}
+
+const handleElementClick = (event: MouseEvent, dataGroup: number) => {
+  const colorIndex = (dataGroup - 1) % colors.length
+  currentColor.value = colors[colorIndex]
+  currentColorIndex.value = colorIndex
+  setColorPickerPosition(event.clientX, event.clientY)
+  colorPickerRef.value?.show()
+}
+
 const fillColors = () => {
-  console.log('svgRef:', svgRef)
   if (svgRef.value === null) {
     return
   }
@@ -19,9 +44,13 @@ const fillColors = () => {
   elements.forEach(element => {
     const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
     const colorIndex = (dataGroup - 1) % colors.length
-    const color = props.colors[colorIndex]
-    ;(element as SVGElement).style.fill = color
+    ;(element as SVGElement).style.fill = props.colors[colorIndex]
   })
+}
+
+const updateColor = (newColor: string, index: number) => {
+  props.colors[currentColorIndex.value] = newColor
+  fillColors()
 }
 
 watch(() => props.colors, (newColors) => {
@@ -30,7 +59,30 @@ watch(() => props.colors, (newColors) => {
 }, {immediate: true});
 
 onMounted(() => {
+  const elements = svgRef.value?.querySelectorAll('[data-group]')
+  if (!elements) {
+    return
+  }
+  elements.forEach(element => {
+    const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
+    element.addEventListener('click', (event) => {
+      handleElementClick(event, dataGroup)
+    })
+  })
   fillColors()
+})
+
+onUnmounted(() => {
+  const elements = svgRef.value?.querySelectorAll('[data-group]')
+  if (!elements) {
+    return
+  }
+  elements.forEach(element => {
+    const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
+    element.removeEventListener('click', (event) => {
+      handleElementClick(event, dataGroup)
+    })
+  })
 })
 
 </script>
@@ -69,6 +121,14 @@ onMounted(() => {
         </g>
       </g>
     </svg>
+    <el-color-picker
+      ref="colorPickerRef"
+      v-model="currentColor"
+      @active-change="updateColor"
+      @blur="() => currentColorIndex.value = null"
+      popper-class="custom-color-picker"
+      style="display: none;"
+    />
   </div>
 </template>
 
