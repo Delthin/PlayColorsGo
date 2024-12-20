@@ -2,11 +2,12 @@
 import { ref } from "vue";
 import Navbar from "../components/layout/Navbar.vue";
 import PageHeader from "../components/layout/PageHeader.vue";
+import { useRouter } from 'vue-router';
+import SavePaletteModal from '../components/collection/SavePaletteModal.vue';
+import NotificationToast from '../components/common/NotificationToast.vue';
 
 const imageUrl = ref<string>('');
 const colorPoints = ref<{ x: number; y: number; color: string }[]>([]);
-const isDragging = ref(false);
-const draggedPointIndex = ref(-1);
 const imageElement = ref<HTMLImageElement | null>(null);
 const colors = ref<string[]>([]);
 
@@ -20,20 +21,66 @@ const hoveredColorIndex = ref<number | null>(null);
 const isMouseDown = ref(false);
 const activePointIndex = ref(-1);
 
+const router = useRouter();
+const showSaveModal = ref(false);
 
-const exportOptions = [
-    { label: 'Open in Generator', icon: 'fas fa-external-link-alt' },
-    { label: 'Copy URL', icon: 'fas fa-link' },
-    { label: 'Quick View', icon: 'fas fa-eye' },
-    { label: 'Save Palette', icon: 'fas fa-save' },
-];
+const notification = ref({
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+});
 
-function handleExport(option: string) {
-    switch (option) {
-        case 'Copy URL':
-            navigator.clipboard.writeText(window.location.href);
-            break;
-        // 添加其他导出选项处理...
+
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+    notification.value = {
+        show: true,
+        message,
+        type
+    };
+    setTimeout(() => {
+        notification.value.show = false;
+    }, 2000);
+}
+
+function copyColor(color: string) {
+    navigator.clipboard.writeText(color).then(() => {
+        showNotification(`Color ${color.toUpperCase()} copied!`, 'success');
+    });
+}
+
+// 复制颜色函数
+function copyColors() {
+    const colorString = colors.value.join(', ');
+    navigator.clipboard.writeText(colorString).then(() => {
+        showNotification('Colors copied to clipboard!', 'success');
+    });
+}
+
+// 预览调色板函数
+function previewPalette() {
+    router.push({
+        path: '/preview',
+        query: {
+            colors: colors.value.join(',')
+        }
+    });
+}
+
+// 处理保存结果
+function handleSavePalette(data: { success: boolean, message: string }) {
+    showNotification(data.message, data.success ? 'success' : 'error');
+    if (data.success) {
+        showSaveModal.value = false;
+    }
+}
+
+// 触发文件上传函数
+function triggerUpload() {
+    const input = document.getElementById('image-upload') as HTMLInputElement;
+    if (input) {
+        // 清除原有的值，使其能重复选择相同文件
+        input.value = '';
+        input.click();
     }
 }
 
@@ -44,12 +91,12 @@ function handleImageUpload(event: Event) {
         const reader = new FileReader();
         reader.onload = (e) => {
             imageUrl.value = e.target?.result as string;
-            // 图片加载完成后初始化取色点
-            const img = new Image();
-            img.src = imageUrl.value;
-            img.onload = () => {
-                initializeColorPoints(DEFAULT_POINTS_COUNT, false);
-            };
+            // 重置取色点
+            colorPoints.value = [];
+            colors.value = [];
+        };
+        reader.onerror = () => {
+            showNotification('Failed to load image', 'error');
         };
         reader.readAsDataURL(file);
     }
@@ -61,43 +108,58 @@ function initializeColorPoints(count: number, keepExisting: boolean = false) {
     const rect = imageElement.value.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    const currentPoints = colorPoints.value;
+
+    // 使用新数组避免直接修改响应式数据
+    let newPoints;
 
     if (keepExisting) {
-        if (count > currentPoints.length) {
-            // 添加新点
-            const newPoints = Array(count - currentPoints.length).fill(null).map(() => ({
+        if (count > colorPoints.value.length) {
+            // 只添加新点
+            const additionalPoints = Array(count - colorPoints.value.length)
+                .fill(null)
+                .map(() => ({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    color: '#000000'
+                }));
+            newPoints = [...colorPoints.value, ...additionalPoints];
+        } else {
+            // 只移除多余的点
+            newPoints = colorPoints.value.slice(0, count);
+        }
+    } else {
+        // 生成新的随机点
+        newPoints = Array(count)
+            .fill(null)
+            .map(() => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 color: '#000000'
             }));
-            colorPoints.value = [...currentPoints, ...newPoints];
-        } else {
-            // 减少点
-            colorPoints.value = currentPoints.slice(0, count);
-        }
-    } else {
-        // 完全重置所有点
-        colorPoints.value = Array(count).fill(null).map(() => ({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            color: '#000000'
-        }));
     }
 
-    updateColors();
+    // 一次性更新点位
+    colorPoints.value = newPoints;
+
+    // 使用 requestAnimationFrame 更新颜色
+    requestAnimationFrame(() => updateColors());
 }
 
+
 function addColorPoint() {
-    if (colorPoints.value.length < 10) {
-        initializeColorPoints(colorPoints.value.length + 1, true);
-    }
+    if (colorPoints.value.length >= 10) return;
+    const currentLength = colorPoints.value.length;
+    requestAnimationFrame(() => {
+        initializeColorPoints(currentLength + 1, true);
+    });
 }
 
 function removeColorPoint() {
-    if (colorPoints.value.length > 1) {
-        initializeColorPoints(colorPoints.value.length - 1, true);
-    }
+    if (colorPoints.value.length <= 1) return;
+    const currentLength = colorPoints.value.length;
+    requestAnimationFrame(() => {
+        initializeColorPoints(currentLength - 1, true);
+    });
 }
 
 // 更新所有取色点的颜色
@@ -105,37 +167,41 @@ function updateColors() {
     if (!imageElement.value) return;
 
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
     const img = imageElement.value;
     const rect = img.getBoundingClientRect();
 
+    // 设置canvas尺寸
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
+
+    // 一次性绘制图片
     ctx.drawImage(img, 0, 0);
 
     const scaleX = img.naturalWidth / rect.width;
     const scaleY = img.naturalHeight / rect.height;
 
-    colors.value = colorPoints.value.map((point, index) => {
-        // 计算实际采样点坐标 - 这里不需要加 centerOffset
+    // 批量获取颜色数据
+    const newColors = colorPoints.value.map((point, index) => {
         const sampleX = Math.min(Math.floor(point.x * scaleX), img.naturalWidth - 1);
         const sampleY = Math.min(Math.floor(point.y * scaleY), img.naturalHeight - 1);
 
         const pixel = ctx.getImageData(sampleX, sampleY, 1, 1).data;
-        const color = `#${Array.from(pixel.slice(0, 3))
+        return `#${Array.from(pixel.slice(0, 3))
             .map(x => x.toString(16).padStart(2, '0'))
             .join('')}`;
-
-        // 更新 colorPoints
-        colorPoints.value[index] = {
-            ...point,
-            color: color
-        };
-
-        return color;
     });
+
+    // 一次性更新所有颜色
+    colors.value = newColors;
+
+    // 更新点的颜色
+    colorPoints.value = colorPoints.value.map((point, index) => ({
+        ...point,
+        color: newColors[index]
+    }));
 }
 
 // 处理取色点拖动
@@ -176,8 +242,6 @@ function updatePointPosition(event: MouseEvent) {
     if (!imageElement.value || activePointIndex.value === -1) return;
 
     const rect = imageElement.value.getBoundingClientRect();
-    const pointSize = activePointIndex.value === selectedColorIndex.value ? 28 : 20;
-
     // 计算相对位置并限制边界
     const x = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
     const y = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
@@ -199,7 +263,26 @@ function updatePointPosition(event: MouseEvent) {
 // 随机打乱取色点位置
 function shufflePoints() {
     if (!imageElement.value) return;
-    initializeColorPoints(colorPoints.value.length, false);
+    const rect = imageElement.value.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    // 生成新的随机位置
+    const newPoints = colorPoints.value.map(point => ({
+        ...point,
+        oldX: point.x, // 保存原始位置
+        oldY: point.y,
+        x: Math.random() * width,
+        y: Math.random() * height
+    }));
+
+    // 先更新位置（带动画）
+    colorPoints.value = newPoints;
+
+    // 等待动画完成后更新颜色
+    setTimeout(() => {
+        updateColors();
+    }, 400); // 与 CSS transition duration 匹配
 }
 
 function selectColor(index: number) {
@@ -214,10 +297,45 @@ function isLightColor(color: string): boolean {
     return (r * 0.299 + g * 0.587 + b * 0.114) > 128;
 }
 
+function handleDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.add('dragging');
+}
+
+function handleDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.remove('dragging');
+}
+
+function handleDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.remove('dragging');
+
+    const file = event.dataTransfer?.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imageUrl.value = e.target?.result as string;
+            colorPoints.value = [];
+            colors.value = [];
+        };
+        reader.readAsDataURL(file);
+    } else {
+        showNotification('Please upload an image file', 'error');
+    }
+}
+
 </script>
 
 <template>
     <div class="image-picker-page">
+        <input type="file" accept="image/*" @change="handleImageUpload" id="image-upload" class="hidden" />
         <Navbar />
         <PageHeader title="Image Color Picker"
             subtitle="Extract colors from your images and create beautiful palettes" />
@@ -241,7 +359,8 @@ function isLightColor(color: string): boolean {
                             </div>
                         </div>
                         <div class="color-adjustment">
-                            <button @click="addColorPoint" :disabled="colors.length >= 10 || colors.length === 0">+</button>
+                            <button @click="addColorPoint"
+                                :disabled="colors.length >= 10 || colors.length === 0">+</button>
                             <button @click="removeColorPoint" :disabled="colors.length <= 1">-</button>
                         </div>
                     </div>
@@ -250,20 +369,56 @@ function isLightColor(color: string): boolean {
                 <div class="colors-info">
                     <div v-for="(color, index) in colors" :key="index" class="color-info-item"
                         :class="{ 'selected': index === selectedColorIndex }">
-                        <div class="color-preview" :style="{ backgroundColor: color }">
+                        <div class="color-info-main" @click="selectColor(index)">
+                            <div class="color-preview" :style="{ backgroundColor: color }">
+                            </div>
+                            <span class="color-hex">{{ color.toUpperCase() }}</span>
                         </div>
-                        <span class="color-hex">{{ color.toUpperCase() }}</span>
+                        <button class="copy-button" @click="copyColor(color)" :title="'Copy ' + color">
+                            <i class="fas fa-copy"></i>
+                        </button>
                     </div>
+                </div>
+                <!-- 在 color-panel 内，colors-info 后添加以下内容 -->
+                <div class="panel-controls">
+                    <button class="tool-button upload-btn" @click="triggerUpload">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Image</span>
+                    </button>
+
+                    <button class="tool-button" @click="shufflePoints">
+                        <i class="fas fa-random"></i>
+                        <span>Shuffle</span>
+                    </button>
+
+                    <button class="tool-button" @click="copyColors">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Colors</span>
+                    </button>
+
+                    <button class="tool-button" @click="showSaveModal = true">
+                        <i class="fas fa-heart"></i>
+                        <span>Save Palette</span>
+                    </button>
+
+                    <button class="tool-button" @click="previewPalette">
+                        <i class="fas fa-eye"></i>
+                        <span>Preview</span>
+                    </button>
                 </div>
             </div>
 
             <div class="image-panel">
-                <div class="upload-area" v-if="!imageUrl">
+                <div class="upload-area" v-if="!imageUrl" @click="triggerUpload" @dragover="handleDragOver" @dragleave="handleDragLeave"
+                    @drop="handleDrop">
                     <input type="file" accept="image/*" @change="handleImageUpload" id="image-upload" class="hidden" />
-                    <label for="image-upload" class="upload-button">
-                        <i class="fas fa-upload"></i>
-                        <span>Upload Image</span>
-                    </label>
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="upload-text">
+                            <h3>Upload image</h3>
+                            <p>Browse or drop image here</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="image-container" v-else>
@@ -286,27 +441,19 @@ function isLightColor(color: string): boolean {
                             backgroundColor: point.color
                         }" @mousedown="handlePointDragStart($event, index)">
                     </div>
-
-                    <div class="image-controls">
-                        <button @click="shufflePoints" class="control-button">
-                            <i class="fas fa-random"></i>
-                            Shuffle Points
-                        </button>
-                        <button @click="initializeColorPoints(colors.length)" class="control-button">
-                            <i class="fas fa-redo"></i>
-                            Reset Points
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <SavePaletteModal v-if="showSaveModal" :show="showSaveModal" :colors="colors" @close="showSaveModal = false"
+        @save="handleSavePalette" />
+    <NotificationToast :show="notification.show" :message="notification.message" :type="notification.type" />
 </template>
 
 <style scoped>
 .image-picker-page {
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: white;
 }
 
 .content-container {
@@ -322,6 +469,7 @@ function isLightColor(color: string): boolean {
     width: 300px;
     background: white;
     border-radius: 8px;
+    border: 1px solid #eee;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
     display: flex;
@@ -396,18 +544,51 @@ function isLightColor(color: string): boolean {
 .color-info-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
     padding: 8px;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    background-color: transparent;
+}
+
+.color-info-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+    padding: 2px 0; /* 增加上下内边距 */
+    height: 100%; /* 确保填满父容器高度 */
 }
 
 .color-info-item:hover {
+    transform: translateX(4px);
     background-color: #f8f9fa;
 }
 
 .color-info-item.selected {
+    transform: translateX(4px);
     background-color: #e9ecef;
+}
+
+.copy-button {
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.color-info-item:hover .copy-button {
+    opacity: 1;
+}
+
+.copy-button:hover {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
 }
 
 .color-preview {
@@ -419,14 +600,15 @@ function isLightColor(color: string): boolean {
 
 .color-hex {
     font-family: monospace;
-    font-size: 14px;
+    font-size: 16px;
     color: #495057;
 }
 
 .image-panel {
     flex: 1;
-    background: white;
+    background: #f8f9fa;
     border-radius: 8px;
+    border: 1px solid #eee;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
     min-height: 400px;
@@ -436,31 +618,63 @@ function isLightColor(color: string): boolean {
 }
 
 .upload-area {
-    text-align: center;
-    padding: 40px;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 2px dashed #ddd;
     border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+    cursor: pointer;
+}
+
+.upload-area:hover,
+.upload-area.dragging {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.upload-content {
+    text-align: center;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.upload-content i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #007bff;
+}
+
+.upload-content h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.upload-content p {
+    font-size: 14px;
+    margin: 0;
+}
+
+.upload-link {
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.upload-link:hover {
+    text-decoration: underline;
 }
 
 .hidden {
     display: none;
 }
 
-.upload-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 24px;
-    background-color: #007bff;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
 
-.upload-button:hover {
-    background-color: #0056b3;
-}
 
 .image-container {
     position: relative;
@@ -498,9 +712,28 @@ function isLightColor(color: string): boolean {
     will-change: transform;
     backface-visibility: hidden;
     /* GPU加速 */
-    transform: translate(-50%, -50%);  /* 居中对齐 */
+    transform: translate(-50%, -50%);
+    /* 居中对齐 */
     touch-action: none;
     z-index: 1;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 添加轨迹动画效果 */
+.color-point::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.2;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.color-point:hover::after {
+    transform: scale(1.5);
 }
 
 .color-point:active {
@@ -513,35 +746,6 @@ function isLightColor(color: string): boolean {
     border-width: 4px;
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
     z-index: 10;
-}
-
-.image-controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.control-button {
-    padding: 8px 16px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-    width: 100%;
-    justify-content: center;
-    font-size: 14px;
-}
-
-.control-button:hover {
-    background-color: #f8f9fa;
-    border-color: #007bff;
 }
 
 .color-list {
@@ -644,12 +848,51 @@ function isLightColor(color: string): boolean {
     cursor: none;
 }
 
+.tool-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    font-size: 16px;
+    color: #495057;
+}
+
+.tool-button:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.tool-button i {
+    font-size: 16px;
+}
+
+.tool-button.upload-btn {
+    background-color: #2176ff;
+    color: white;
+    border-color: #007bff;
+    height: px;
+}
+
+.tool-button.upload-btn:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+}
+
 .panel-controls {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-top: 20px;
     border-top: 1px solid #eee;
-    padding-top: 20px;
+    padding-top: 15px;
 }
 </style>
