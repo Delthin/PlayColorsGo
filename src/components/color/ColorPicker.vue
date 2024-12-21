@@ -305,14 +305,14 @@ watch(() => [...props.modelValue], () => {
       <div class="adjustment-slider">
         <label>Saturation</label>
         <div class="slider-container">
-          <input type="range" id="saturation-slider" v-model="saturation" min="-100" max="100" @input="(e) => handleSliderInput(e, 'hue')">
+          <input type="range" id="saturation-slider" v-model="saturation" min="-100" max="100" @input="(e) => handleSliderInput(e, 'saturation')">
           <input type="number" v-model="saturation" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
       <div class="adjustment-slider">
         <label>Brightness</label>
         <div class="slider-container">
-          <input type="range" id="brightness-slider" v-model="brightness" min="-100" max="100" @input="(e) => handleSliderInput(e, 'hue')">
+          <input type="range" id="brightness-slider" v-model="brightness" min="-100" max="100" @input="(e) => handleSliderInput(e, 'brightness')">
           <input type="number" v-model="brightness" min="-100" max="100" @input="adjustColors">
         </div>
       </div>
