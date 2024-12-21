@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import {defineProps, onMounted, onUnmounted, reactive, ref, watch} from "vue";
+import {defineProps, nextTick, onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import {ElColorPicker} from "element-plus";
-import ContentSvg from "../../../public/templates/ContentSvg.vue";
 
 const props = defineProps({
   colors: {
     type: Array as () => string[],
+    required: true
+  },
+  svgComponent: {
+    type: Object as () => any,
     required: true
   },
   fullscreen: {
@@ -16,7 +19,7 @@ const props = defineProps({
 
 const colors = reactive<string[]>([])
 
-const svgRef = ref<ContentSvg | null>(null);
+const svgRef = ref<any>(null);
 
 const currentColor = ref('#FFFFFF')
 const currentColorIndex = ref<number | null>(0)
@@ -49,7 +52,7 @@ const fillColors = () => {
   }
   const svgElement = svgRef.value.$el as SVGElement
   const elements = svgElement?.querySelectorAll('[data-group]')
-  elements.forEach(element => {
+  elements?.forEach(element => {
     const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
     const colorIndex = (dataGroup - 1) % colors.length
     ;(element as SVGElement).style.fill = `var(--c${colorIndex + 1}`
@@ -66,7 +69,8 @@ watch(() => props.colors, (newColors) => {
   fillColors()
 }, {immediate: true});
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   if (svgRef.value === null) {
     return
   }
@@ -87,33 +91,34 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  const elements = svgRef.value?.querySelectorAll('[data-group]')
+  if (svgRef.value === null) {
+    return
+  }
+  const svgElement = svgRef.value.$el as SVGElement
+  const elements = svgElement?.querySelectorAll('[data-group]')
   if (!elements) {
     return
   }
-  if (props.fullscreen) {
-    elements.forEach(element => {
-      const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
-      element.removeEventListener('click', (event) => {
-        handleElementClick(event, dataGroup)
-      })
+  elements.forEach(element => {
+    const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
+    element.removeEventListener('click', (event) => {
+      handleElementClick(event, dataGroup)
     })
-  }
+  })
 })
 
 </script>
 
-<!-- TODO: click to fullscreen -->
 <template>
   <div class="svg-container">
-    <ContentSvg ref="svgRef"/>
+    <component :is="props.svgComponent" ref="svgRef"/>
     <el-color-picker
-      ref="colorPickerRef"
-      v-model="currentColor"
-      @active-change="updateColor"
-      @blur="() => currentColorIndex.value = null"
-      popper-class="custom-color-picker"
-      style="display: none;"
+        ref="colorPickerRef"
+        v-model="currentColor"
+        @active-change="updateColor"
+        @blur="() => currentColorIndex.value = null"
+        popper-class="custom-color-picker"
+        style="display: none;"
     />
   </div>
 </template>

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import {ref, onMounted, watch, computed} from 'vue';
+import {ref, onMounted, watch, computed, markRaw, nextTick, shallowRef} from 'vue';
 import Navbar from "../components/layout/Navbar.vue";
 import ColorPicker from "../components/color/ColorPicker.vue";
 import { usePalettes } from "../composables/usePalettes";
 import PageHeader from "../components/layout/PageHeader.vue";
 import Template from "../components/visualizer/Illustration.vue";
 import Illustration from "../components/visualizer/Illustration.vue";
+import ContentSvg from "../../public/templates/ContentSvg.vue";
 
 
 const route = useRoute();
@@ -89,17 +90,17 @@ watch(dynamicColors, (newStyles) => {
 }, { immediate: true });
 
 const isFullscreen = ref(false);
-const fullscreenIllustration = ref<string | null>(null);
+const fullscreenSvgComponent = shallowRef<any>(null);
 
-function handleIllustrationClick(event: MouseEvent, illustration: string) {
+function handleIllustrationClick(event: MouseEvent, svgComponent: any) {
   event.stopPropagation();
-  fullscreenIllustration.value = illustration;
+  fullscreenSvgComponent.value = svgComponent;
   isFullscreen.value = true;
 }
 
 function exitFullscreen() {
   isFullscreen.value = false;
-  fullscreenIllustration.value = null;
+  fullscreenSvgComponent.value = null;
 }
 
 </script>
@@ -112,16 +113,13 @@ function exitFullscreen() {
   />
   <div class="preview-colors">
     <div class="illustrations-wrapper">
-      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration1')" />
-      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration2')" />
-      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration3')" />
-      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration4')" />
+      <Illustration :colors="colors" :svg-component="ContentSvg" class="illustration" @click="(event) => handleIllustrationClick(event, ContentSvg)" />
     </div>
 
     <transition name="fullscreen-container">
       <div v-if="isFullscreen" class="fullscreen-container" @click="exitFullscreen">
         <button class="close-button" @click.stop="exitFullscreen">✖</button>
-        <Illustration :colors="colors" :fullscreen="true" class="fullscreen-illustration" @click.stop />
+        <Illustration :colors="colors" :svg-component="fullscreenSvgComponent" :fullscreen="true" class="fullscreen-illustration" @click.stop />
       </div>
     </transition>
 
