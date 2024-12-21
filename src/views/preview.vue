@@ -5,14 +5,15 @@ import Navbar from "../components/layout/Navbar.vue";
 import ColorPicker from "../components/color/ColorPicker.vue";
 import { usePalettes } from "../composables/usePalettes";
 import PageHeader from "../components/layout/PageHeader.vue";
-import Template from "../components/visualizer/Template.vue";
+import Template from "../components/visualizer/Illustration.vue";
+import ContentSvg from "../../public/templates/ContentSvg.vue";
+import Illustration from "../components/visualizer/Illustration.vue";
 
 
 const route = useRoute();
 const router = useRouter();
 const colors = ref<string[]>([]);
 const { palettes, fetchPalettes } = usePalettes();
-
 
 function updateUrlColors(newColors: string[]) {
   router.replace({ query: { colors: newColors.join(',') } });
@@ -74,12 +75,12 @@ function handleColorChange(newColors: string[]) {
     title="Palette Visualizer"
     subtitle="Preview your colors on real designs for a better visual understanding."
   />
-  <Template :colors="colors" class="template" />
+  <Illustration :colors="colors" class="illustration" />
   <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
 </template>
 
 <style scoped>
-.template {
+.illustration {
   margin-bottom: 300px;
 }
 </style>

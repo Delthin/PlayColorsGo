@@ -14,6 +14,7 @@ declare module 'vue' {
     DeleteConfirmModal: typeof import('./src/components/common/DeleteConfirmModal.vue')['default']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElContainer: typeof import('element-plus/es')['ElContainer']
+    Illustration: typeof import('./src/components/visualizer/Illustration.vue')['default']
     LoginModal: typeof import('./src/components/auth/LoginModal.vue')['default']
     Navbar: typeof import('./src/components/layout/Navbar.vue')['default']
     NotificationToast: typeof import('./src/components/common/NotificationToast.vue')['default']
@@ -24,6 +25,7 @@ declare module 'vue' {
     SavePaletteModal: typeof import('./src/components/collection/SavePaletteModal.vue')['default']
     SearchBox: typeof import('./src/components/common/SearchBox.vue')['default']
     SignUpModal: typeof import('./src/components/auth/SignUpModal.vue')['default']
+    SvgTemplate: typeof import('./src/components/visualizer/SvgTemplate.vue')['default']
     Template: typeof import('./src/components/visualizer/Template.vue')['default']
     UserProfileDropDown: typeof import('./src/components/auth/UserProfileDropDown.vue')['default']
   }
