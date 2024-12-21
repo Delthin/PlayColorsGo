@@ -386,22 +386,22 @@ function handleDrop(event: DragEvent) {
                         <span>Upload Image</span>
                     </button>
 
-                    <button class="tool-button" @click="shufflePoints">
+                    <button class="tool-button" @click="shufflePoints" :disabled="imageElement === null">
                         <i class="fas fa-random"></i>
                         <span>Shuffle</span>
                     </button>
 
-                    <button class="tool-button" @click="copyColors">
+                    <button class="tool-button" @click="copyColors" :disabled="imageElement === null">
                         <i class="fas fa-copy"></i>
                         <span>Copy Colors</span>
                     </button>
 
-                    <button class="tool-button" @click="showSaveModal = true">
+                    <button class="tool-button" @click="showSaveModal = true" :disabled="imageElement === null">
                         <i class="fas fa-heart"></i>
                         <span>Save Palette</span>
                     </button>
 
-                    <button class="tool-button" @click="previewPalette">
+                    <button class="tool-button" @click="previewPalette" :disabled="imageElement === null">
                         <i class="fas fa-eye"></i>
                         <span>Preview</span>
                     </button>
@@ -409,8 +409,8 @@ function handleDrop(event: DragEvent) {
             </div>
 
             <div class="image-panel">
-                <div class="upload-area" v-if="!imageUrl" @click="triggerUpload" @dragover="handleDragOver" @dragleave="handleDragLeave"
-                    @drop="handleDrop">
+                <div class="upload-area" v-if="!imageUrl" @click="triggerUpload" @dragover="handleDragOver"
+                    @dragleave="handleDragLeave" @drop="handleDrop">
                     <input type="file" accept="image/*" @change="handleImageUpload" id="image-upload" class="hidden" />
                     <div class="upload-content">
                         <i class="fas fa-cloud-upload-alt"></i>
@@ -557,8 +557,10 @@ function handleDrop(event: DragEvent) {
     gap: 10px;
     cursor: pointer;
     flex: 1;
-    padding: 2px 0; /* 增加上下内边距 */
-    height: 100%; /* 确保填满父容器高度 */
+    padding: 2px 0;
+    /* 增加上下内边距 */
+    height: 100%;
+    /* 确保填满父容器高度 */
 }
 
 .color-info-item:hover {
@@ -861,6 +863,17 @@ function handleDrop(event: DragEvent) {
     width: 100%;
     justify-content: center;
     font-size: 16px;
+    color: #495057;
+}
+
+.tool-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tool-button:disabled:hover {
+    background-color: white;
+    border-color: #ddd;
     color: #495057;
 }
 
