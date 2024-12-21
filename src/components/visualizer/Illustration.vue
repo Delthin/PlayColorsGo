@@ -109,8 +109,8 @@ onUnmounted(() => {
 
 <style scoped>
 .svg-container {
-  width: 80%;
-  margin: 20px 10px;
+  width: 100%;
+  margin: 20px 20px;
   box-sizing: border-box;
   box-shadow: 8px 10px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;

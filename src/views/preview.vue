@@ -112,8 +112,8 @@ watch(dynamicColors, (newStyles) => {
   scale: 90%;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  grid-gap: 20px 20px;
+  grid-template-columns: repeat(auto-fill, minmax(650px, 1fr));
+  grid-gap: 40px 80px;
   justify-items: center;
   justify-content: center;
   margin-bottom: 200px;

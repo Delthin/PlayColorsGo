@@ -1,31 +1,87 @@
 <template>
   <svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 800 400"
-      xmlns="http://www.w3.org/2000/svg"
-      style="overflow: visible;">
-
+    width="100%"
+    height="100%"
+    viewBox="0 0 1280 1024"
+    xmlns="http://www.w3.org/2000/svg"
+    style="background-color: #f7f7f8; display: block; margin: auto; overflow: hidden;"
+  >
     <!-- Left Section -->
-    <rect x="0" y="0" width="400" height="400" data-group="1"/>
-    <text x="200" y="130" font-family="Arial" font-size="64" font-weight="600" text-anchor="middle" dominant-baseline="middle" data-group="3">目 录</text>
-    <!-- add a rectangle which just has outline in data-group 3 surrounding the CONTENTS -->
-    <rect x="110" y="180" width="180" height="60" data-group="3"/>
-    <rect x="113" y="183" width="174" height="54" data-group="1"/>
-    <text x="200" y="212" font-family="Arial" font-size="24" font-weight="600" text-anchor="middle" dominant-baseline="middle"  data-group="3">CONTENTS</text>
+    <g transform="translate(50, 220) scale(1.5)">
+      <rect x="0" y="0" width="400" height="400" data-group="1" />
+      <text
+        x="200"
+        y="130"
+        font-family="Arial"
+        font-size="56"
+        font-weight="600"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        data-group="3"
+      >
+        目 录
+      </text>
+      <!-- Rectangle with outline around CONTENTS -->
+      <rect x="110" y="180" width="180" height="60" data-group="3" />
+      <rect x="113" y="183" width="174" height="54" data-group="1" />
+      <text
+        x="200"
+        y="212"
+        font-family="Arial"
+        font-size="24"
+        font-weight="600"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        data-group="3"
+      >
+        CONTENTS
+      </text>
+    </g>
 
     <!-- Right Section -->
-    <rect x="400" y="0" width="400" height="400" data-group="2"/>
+    <g transform="translate(630, 220) scale(1.5)">
+      <rect x="0" y="0" width="400" height="400" data-group="2" />
+    </g>
 
     <!-- Group for Section Titles -->
-    <g id="section-titles">
-      <g class="section" v-for="i in 4" :key="i" :transform="'translate(0, ' + (80 * i) + ')'">
-        <g transform="translate(430, -20)">
-          <circle r="20" cx="13" cy="22" data-group="1"/>
-          <polygon points="56,18 56,26 60,22" data-group="3"/>
-          <text x="2" y="28" font-family="Arial" font-size="20" data-group="3">{{ '0' + i }}</text>
-          <rect x="80" y="0" width="250" height="50" rx="25" data-group="4"/>
-          <text x="205" y="27" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" data-group="5">输入文字</text>
+    <g id="section-titles" transform="translate(630, 200) scale(1.5)">
+      <g
+        class="section"
+        v-for="i in 4"
+        :key="i"
+        :transform="'translate(0, ' + (85 * i) + ')'"
+      >
+        <g transform="translate(30, -20)">
+          <circle r="18" cx="13" cy="22" data-group="1" />
+          <polygon points="56,18 56,26 60,22" data-group="3" />
+          <text
+            x="2"
+            y="28"
+            font-family="Arial"
+            font-size="18"
+            data-group="3"
+          >
+            {{ '0' + i }}
+          </text>
+          <rect
+            x="80"
+            y="0"
+            width="250"
+            height="50"
+            rx="25"
+            data-group="4"
+          />
+          <text
+            x="205"
+            y="27"
+            font-family="Arial"
+            font-size="21"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            data-group="5"
+          >
+            章节名称
+          </text>
         </g>
       </g>
     </g>
