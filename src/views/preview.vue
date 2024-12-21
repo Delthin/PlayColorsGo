@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch, computed} from 'vue';
 import Navbar from "../components/layout/Navbar.vue";
 import ColorPicker from "../components/color/ColorPicker.vue";
 import { usePalettes } from "../composables/usePalettes";
 import PageHeader from "../components/layout/PageHeader.vue";
 import Template from "../components/visualizer/Illustration.vue";
-import ContentSvg from "../../public/templates/ContentSvg.vue";
 import Illustration from "../components/visualizer/Illustration.vue";
 
 
@@ -46,6 +45,14 @@ async function getColorsFromUrl(): Promise<string[]> {
 onMounted(async () => {
   const initialColors = await getColorsFromUrl();
   colors.value = initialColors;
+
+  const previewColorsElement = document.querySelector('.preview-colors');
+  if (previewColorsElement) {
+    const initialStyles = initialColors.map((color, index) => {
+      return `--c${index + 1}: ${color};`;
+    }).join('\n');
+    previewColorsElement.setAttribute('style', initialStyles);
+  }
 });
 
 watch(
@@ -67,6 +74,20 @@ function handleColorChange(newColors: string[]) {
   colors.value = newColors;
   updateUrlColors(newColors);
 }
+
+const dynamicColors = computed(() => {
+  return colors.value.map((color, index) => {
+    return `--c${index + 1}: ${color};`;
+  }).join('\n');
+})
+
+watch(dynamicColors, (newStyles) => {
+  const previewColorsElement = document.querySelector('.preview-colors');
+  if (previewColorsElement) {
+    previewColorsElement.setAttribute('style', newStyles);
+  }
+}, { immediate: true });
+
 </script>
 
 <template>
@@ -75,12 +96,35 @@ function handleColorChange(newColors: string[]) {
     title="Palette Visualizer"
     subtitle="Preview your colors on real designs for a better visual understanding."
   />
-  <Illustration :colors="colors" class="illustration" />
+  <div class="preview-colors">
+    <div class="illustrations-wrapper">
+      <Illustration :colors="colors" class="illustration" />
+      <Illustration :colors="colors" class="illustration" />
+      <Illustration :colors="colors" class="illustration" />
+      <Illustration :colors="colors" class="illustration" />
+    </div>
+  </div>
   <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
 </template>
 
 <style scoped>
-.illustration {
-  margin-bottom: 300px;
+.illustrations-wrapper {
+  scale: 90%;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  grid-gap: 20px 20px;
+  justify-items: center;
+  justify-content: center;
+  margin-bottom: 200px;
 }
+
+.illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  margin-bottom: 20px;
+}
+
 </style>

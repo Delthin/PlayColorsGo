@@ -5,7 +5,6 @@ import ContentSvg from "../../../public/templates/ContentSvg.vue";
 
 interface Props {
   colors: string[];
-  // svgRef: SVGSVGElement | null;
 }
 
 const props = defineProps<Props>()
@@ -47,7 +46,7 @@ const fillColors = () => {
   elements.forEach(element => {
     const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
     const colorIndex = (dataGroup - 1) % colors.length
-    ;(element as SVGElement).style.fill = props.colors[colorIndex]
+    ;(element as SVGElement).style.fill = `var(--c${colorIndex + 1}`
   })
 }
 
@@ -110,8 +109,11 @@ onUnmounted(() => {
 
 <style scoped>
 .svg-container {
-  width: 60%;
-  margin: 20px auto;
+  width: 80%;
+  margin: 20px 10px;
+  box-sizing: border-box;
+  box-shadow: 8px 10px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
 </style>
