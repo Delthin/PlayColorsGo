@@ -3,11 +3,17 @@ import {defineProps, onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import {ElColorPicker} from "element-plus";
 import ContentSvg from "../../../public/templates/ContentSvg.vue";
 
-interface Props {
-  colors: string[];
-}
+const props = defineProps({
+  colors: {
+    type: Array as () => string[],
+    required: true
+  },
+  fullscreen: {
+    type: Boolean,
+    default: false
+  },
+})
 
-const props = defineProps<Props>()
 const colors = reactive<string[]>([])
 
 const svgRef = ref<ContentSvg | null>(null);
@@ -69,12 +75,14 @@ onMounted(() => {
   if (!elements) {
     return
   }
-  elements.forEach(element => {
-    const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
-    element.addEventListener('click', (event) => {
-      handleElementClick(event, dataGroup)
+  if (props.fullscreen) {
+    elements.forEach(element => {
+      const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
+      element.addEventListener('click', (event) => {
+        handleElementClick(event, dataGroup)
+      })
     })
-  })
+  }
   fillColors()
 })
 
@@ -83,16 +91,19 @@ onUnmounted(() => {
   if (!elements) {
     return
   }
-  elements.forEach(element => {
-    const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
-    element.removeEventListener('click', (event) => {
-      handleElementClick(event, dataGroup)
+  if (props.fullscreen) {
+    elements.forEach(element => {
+      const dataGroup = parseInt((element as SVGElement).getAttribute('data-group') || '0')
+      element.removeEventListener('click', (event) => {
+        handleElementClick(event, dataGroup)
+      })
     })
-  })
+  }
 })
 
 </script>
 
+<!-- TODO: click to fullscreen -->
 <template>
   <div class="svg-container">
     <ContentSvg ref="svgRef"/>
@@ -112,7 +123,6 @@ onUnmounted(() => {
   width: 100%;
   margin: 20px 20px;
   box-sizing: border-box;
-  box-shadow: 8px 10px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 

@@ -88,6 +88,20 @@ watch(dynamicColors, (newStyles) => {
   }
 }, { immediate: true });
 
+const isFullscreen = ref(false);
+const fullscreenIllustration = ref<string | null>(null);
+
+function handleIllustrationClick(event: MouseEvent, illustration: string) {
+  event.stopPropagation();
+  fullscreenIllustration.value = illustration;
+  isFullscreen.value = true;
+}
+
+function exitFullscreen() {
+  isFullscreen.value = false;
+  fullscreenIllustration.value = null;
+}
+
 </script>
 
 <template>
@@ -98,13 +112,21 @@ watch(dynamicColors, (newStyles) => {
   />
   <div class="preview-colors">
     <div class="illustrations-wrapper">
-      <Illustration :colors="colors" class="illustration" />
-      <Illustration :colors="colors" class="illustration" />
-      <Illustration :colors="colors" class="illustration" />
-      <Illustration :colors="colors" class="illustration" />
+      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration1')" />
+      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration2')" />
+      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration3')" />
+      <Illustration :colors="colors" class="illustration" @click="(event) => handleIllustrationClick(event, 'illustration4')" />
     </div>
+
+    <transition name="fullscreen-container">
+      <div v-if="isFullscreen" class="fullscreen-container" @click="exitFullscreen">
+        <button class="close-button" @click.stop="exitFullscreen">✖</button>
+        <Illustration :colors="colors" :fullscreen="true" class="fullscreen-illustration" @click.stop />
+      </div>
+    </transition>
+
+    <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
   </div>
-  <ColorPicker v-model="colors" :max-colors="10" @change="handleColorChange" />
 </template>
 
 <style scoped>
@@ -125,6 +147,56 @@ watch(dynamicColors, (newStyles) => {
   align-items: center;
   align-self: center;
   margin-bottom: 20px;
+  cursor: pointer;
 }
 
+.fullscreen-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 60px);
+  background-color: rgba(250, 250, 250, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 996;
+  box-shadow: 0 -20px 15px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transform: translateY(0);
+}
+
+.fullscreen-container-enter-active,
+.fullscreen-container-leave-active {
+  transform: translateY(100%);
+}
+
+.fullscreen-illustration {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.close-button {
+  position: absolute;
+  top: 30px;
+  right: 50px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  justify-items: center;
+  align-items: center;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease;
+}
+
+.close-button:hover {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
 </style>
