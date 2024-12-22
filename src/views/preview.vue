@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import {ref, onMounted, watch, computed, markRaw, nextTick, shallowRef} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {computed, markRaw, onMounted, ref, shallowRef, watch} from 'vue';
 import Navbar from "../components/layout/Navbar.vue";
 import ColorPicker from "../components/color/ColorPicker.vue";
-import { usePalettes } from "../composables/usePalettes";
+import {usePalettes} from "../composables/usePalettes";
 import PageHeader from "../components/layout/PageHeader.vue";
 import Template from "../components/visualizer/Illustration.vue";
 import Illustration from "../components/visualizer/Illustration.vue";
-import ContentSvg from "../../public/templates/ContentSvg.vue";
+import NewContentSvg from "../../public/templates/ContentSvg.vue";
+import DancingSvg from "../../public/templates/DancingSvg.vue";
+import IconsSvg from "../../public/templates/IconsSvg.vue";
+import StatisticsSvg from "../../public/templates/StatisticsSvg.vue";
 
 
 const route = useRoute();
@@ -103,6 +106,13 @@ function exitFullscreen() {
   fullscreenSvgComponent.value = null;
 }
 
+const rawSvgComponents = [
+    markRaw(DancingSvg),
+    markRaw(IconsSvg),
+    markRaw(StatisticsSvg),
+    markRaw(NewContentSvg),
+]
+
 </script>
 
 <template>
@@ -113,7 +123,9 @@ function exitFullscreen() {
   />
   <div class="preview-colors">
     <div class="illustrations-wrapper">
-      <Illustration :colors="colors" :svg-component="ContentSvg" class="illustration" @click="(event) => handleIllustrationClick(event, ContentSvg)" />
+      <template v-for="(svgComponent, index) in rawSvgComponents" :key="index">
+        <Illustration :colors="colors" :svg-component="svgComponent" class="illustration" @click="(event) => handleIllustrationClick(event, svgComponent)" />
+      </template>
     </div>
 
     <transition name="fullscreen-container">
