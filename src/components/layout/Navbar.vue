@@ -56,6 +56,9 @@ const topicsTags = ref<string[]>([
   "Christmas", "Halloween", "Pride", "Sunset", "Spring", "Winter", "Summer", "Autumn", "Party", "Space", "Kids",
 ]);
 
+const navigateToColors = () => {
+  router.push('/colors');
+};
 
 async function fetchUserInfo() {
   try {
@@ -136,7 +139,7 @@ function openSignUpModal() {
   <nav class="navbar">
     <div class="navbar-content">
       <div class="navbar-left">
-        <h1 class="title-left">Coolors</h1>
+        <h1 class="title-left gradient-text cursor-pointer" @click="navigateToColors">Play Colors Go!</h1>
       </div>
       <div class="navbar-right">
         <div class="nav-links">
@@ -254,9 +257,55 @@ function openSignUpModal() {
 }
 
 .title-left {
-  color: deepskyblue;
-  font-size: 36px;
+  font-family: 'MADE Gentle', sans-serif;
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
   margin: 0;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.gradient-text {
+  background: linear-gradient(45deg, 
+  #ef476f, #ffd166, #06d6a0, #118ab2, #073b4c
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  animation: gradient 15s ease-in-out infinite;
+  position: relative;
+}
+
+.title-left:hover {
+  transform: scale(1.03);
+  letter-spacing: 3px;
+}
+
+.title-left::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.title-left:hover::after {
+  opacity: 0.5;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .search-row {
